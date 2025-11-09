@@ -33,8 +33,6 @@ function App() {
           
           <div className="footer-section">
             <h3>Contact Us</h3>
-            <p> 1-800-CALL-BS1 (1-800-225-5271)</p>
-            <p> Fax: 1-800-NO-FACTS</p>
             <p> tips@ismellbullshit.gov</p>
             <p> complaints@noonecares.org</p>
           </div>
