@@ -56,7 +56,7 @@ const NewsFeed: React.FC = () => {
   if (loading) {
     return (
       <div className="news-feed">
-        <h2 className="news-title">Latest Political News</h2>
+        <h2 className="news-title">Latest Bullshit</h2>
         <div className="news-loading">Loading news...</div>
       </div>
     );
@@ -65,7 +65,7 @@ const NewsFeed: React.FC = () => {
   if (error) {
     return (
       <div className="news-feed">
-        <h2 className="news-title">Latest Political News</h2>
+        <h2 className="news-title">Latest Bullshit</h2>
         <div className="news-error">{error}</div>
       </div>
     );
@@ -73,7 +73,7 @@ const NewsFeed: React.FC = () => {
 
   return (
     <div className="news-feed">
-      <h2 className="news-title">Latest Political News</h2>
+      <h2 className="news-title">Latest Bullshit</h2>
       <div className="news-list">
         {news.map((article, index) => (
           <a

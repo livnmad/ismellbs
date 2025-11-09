@@ -1,0 +1,87 @@
+.bullshit-fact {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  background: linear-gradient(135deg, #2a2a2a 0%, #1a1a1a 100%);
+  border: 2px solid #d2691e;
+  border-radius: 12px;
+  padding: 15px 20px;
+  max-width: 350px;
+  box-shadow: 0 4px 20px rgba(210, 105, 30, 0.3);
+  z-index: 1000;
+}
+
+.fact-header {
+  color: #d2691e;
+  font-weight: 800;
+  font-size: 0.75rem;
+  text-align: center;
+  letter-spacing: 2px;
+  margin-bottom: 10px;
+  text-transform: uppercase;
+}
+
+.fact-content {
+  color: #f5deb3;
+  font-size: 0.9rem;
+  line-height: 1.5;
+  text-align: center;
+  min-height: 60px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.fade-in {
+  animation: fadeIn 0.5s ease-in;
+}
+
+.fade-out {
+  animation: fadeOut 0.5s ease-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fadeOut {
+  from {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  to {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+}
+
+/* Pulse animation for the border */
+.bullshit-fact {
+  animation: pulse-border 2s infinite;
+}
+
+@keyframes pulse-border {
+  0%, 100% {
+    box-shadow: 0 4px 20px rgba(210, 105, 30, 0.3);
+  }
+  50% {
+    box-shadow: 0 4px 30px rgba(210, 105, 30, 0.5);
+  }
+}
+
+@media (max-width: 768px) {
+  .bullshit-fact {
+    position: relative;
+    top: 0;
+    right: 0;
+    max-width: 100%;
+    margin: 20px 0;
+  }
+}

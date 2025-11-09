@@ -100,7 +100,7 @@ const BlogForm: React.FC<BlogFormProps> = ({ onPostCreated }) => {
 
   return (
     <div className="card">
-      <h2>Post your feelings</h2>
+      <h2>Post some bullshit</h2>
       
       {error && <div className="error-message">{error}</div>}
       {success && <div className="success-message">{success}</div>}
