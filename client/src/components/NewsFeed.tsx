@@ -8,6 +8,7 @@ interface NewsArticle {
   url: string;
   publishedAt: string;
   source: string;
+  urlToImage?: string;
 }
 
 const NewsFeed: React.FC = () => {
@@ -81,16 +82,22 @@ const NewsFeed: React.FC = () => {
             href={article.url}
             target="_blank"
             rel="noopener noreferrer"
-            className="news-item"
+            className={`news-item ${index % 2 === 0 ? 'image-left' : 'image-right'}`}
           >
-            <div className="news-header">
-              <span className="news-source">{article.source}</span>
-              <span className="news-time">{formatDate(article.publishedAt)}</span>
-            </div>
-            <h3 className="news-item-title">{article.title}</h3>
-            {article.description && (
-              <p className="news-description">{article.description}</p>
+            {article.urlToImage && (
+              <div className="news-thumbnail">
+                <img src={article.urlToImage} alt={article.title} />
+              </div>
             )}
+            <div className="news-content">
+              <div className="news-header">
+                <span className="news-source">{article.source} • {formatDate(article.publishedAt)}</span>
+              </div>
+              <h3 className="news-item-title">{article.title}</h3>
+              {article.description && (
+                <p className="news-description">{article.description}</p>
+              )}
+            </div>
           </a>
         ))}
       </div>

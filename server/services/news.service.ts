@@ -6,6 +6,7 @@ export interface NewsArticle {
   url: string;
   publishedAt: string;
   source: string;
+  urlToImage?: string;
 }
 
 /**
@@ -37,6 +38,7 @@ export class NewsService {
           url: article.url,
           publishedAt: article.publishedAt,
           source: article.source.name,
+          urlToImage: article.urlToImage || undefined,
         }));
       }
 

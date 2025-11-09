@@ -4,6 +4,8 @@ import './App.css';
 import Home from './components/Home';
 import PostDetail from './components/PostDetail';
 import BullshitFact from './components/BullshitFact';
+import AdminLogin from './components/AdminLogin';
+import AdminDashboard from './components/AdminDashboard';
 
 function App() {
   return (
@@ -20,6 +22,8 @@ function App() {
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/post/:postId" element={<PostDetail />} />
+        <Route path="/admin" element={<AdminLogin />} />
+        <Route path="/admin/dashboard" element={<AdminDashboard />} />
       </Routes>
 
       <footer className="footer">
@@ -41,7 +45,7 @@ function App() {
             <h3>Business Hours</h3>
             <p>Monday - Friday: 9 AM - Never</p>
             <p>Saturday: When we feel like it</p>
-            <p>Sunday: Closed (unlike Congress)</p>
+            <p>Sunday: Closed</p>
             <p>Holidays: All lies, all the time</p>
           </div>
           
@@ -62,6 +66,9 @@ function App() {
             Disclaimer: Everything on this site may or may not be true. 
             We can't tell the difference anymore, and neither can you. 
             If you're offended, you're probably guilty. 
+          </p>
+          <p className="admin-link">
+            <a href="/admin" style={{ color: '#888', textDecoration: 'none', fontSize: '12px' }}>Admin</a>
           </p>
         </div>
       </footer>

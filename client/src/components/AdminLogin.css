@@ -1,0 +1,141 @@
+.admin-login-container {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #1a1a1a 0%, #2a2a2a 100%);
+  padding: 20px;
+}
+
+.admin-login-box {
+  background: #2a2a2a;
+  border: 2px solid #d2691e;
+  border-radius: 16px;
+  padding: 40px;
+  max-width: 450px;
+  width: 100%;
+  box-shadow: 0 10px 40px rgba(210, 105, 30, 0.3);
+}
+
+.admin-login-box h1 {
+  color: #f5deb3;
+  font-size: 2.5rem;
+  margin-bottom: 10px;
+  text-align: center;
+}
+
+.admin-subtitle {
+  color: #999;
+  text-align: center;
+  margin-bottom: 30px;
+  font-size: 1.1rem;
+}
+
+.admin-login-form {
+  margin-bottom: 20px;
+}
+
+.admin-error {
+  background: #ff6b6b;
+  color: white;
+  padding: 12px;
+  border-radius: 8px;
+  margin-bottom: 20px;
+  font-weight: 600;
+  text-align: center;
+}
+
+.admin-form-group {
+  margin-bottom: 20px;
+}
+
+.admin-form-group label {
+  display: block;
+  color: #f5deb3;
+  font-weight: 600;
+  margin-bottom: 8px;
+  font-size: 0.95rem;
+}
+
+.admin-form-group input {
+  width: 100%;
+  padding: 14px;
+  background: #1a1a1a;
+  border: 2px solid #404040;
+  border-radius: 8px;
+  color: #e0e0e0;
+  font-size: 1rem;
+  transition: all 0.3s ease;
+}
+
+.admin-form-group input:focus {
+  outline: none;
+  border-color: #d2691e;
+  box-shadow: 0 0 0 3px rgba(210, 105, 30, 0.2);
+}
+
+.admin-login-btn {
+  width: 100%;
+  padding: 14px;
+  background: #d2691e;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 1.1rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.admin-login-btn:hover:not(:disabled) {
+  background: #b8591a;
+  transform: translateY(-2px);
+  box-shadow: 0 5px 15px rgba(210, 105, 30, 0.4);
+}
+
+.admin-login-btn:disabled {
+  background: #666;
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.admin-warning {
+  background: rgba(255, 193, 7, 0.1);
+  border: 1px solid #ffc107;
+  color: #ffc107;
+  padding: 12px;
+  border-radius: 8px;
+  margin-top: 20px;
+  font-size: 0.85rem;
+  text-align: center;
+}
+
+.admin-back-btn {
+  width: 100%;
+  padding: 12px;
+  background: transparent;
+  color: #d2691e;
+  border: 2px solid #d2691e;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.admin-back-btn:hover {
+  background: #d2691e;
+  color: white;
+}
+
+@media (max-width: 768px) {
+  .admin-login-box {
+    padding: 30px 20px;
+  }
+  
+  .admin-login-box h1 {
+    font-size: 2rem;
+  }
+}
