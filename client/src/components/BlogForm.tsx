@@ -145,7 +145,7 @@ const BlogForm: React.FC<BlogFormProps> = ({ onPostCreated }) => {
 
   return (
     <div className="card">
-      <h2>Post some bullshit</h2>
+      <h2 className="card-title">Post some bullshit</h2>
       
       {error && <div className={`error-message ${errorFading ? 'fade-out' : ''}`}>{error}</div>}
       {success && <div className={`success-message ${successFading ? 'fade-out' : ''}`}>{success}</div>}

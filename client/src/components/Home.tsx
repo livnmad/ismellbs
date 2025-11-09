@@ -22,7 +22,7 @@ const Home: React.FC = () => {
       </div>
 
       <div className="main-content">
-        <h2 style={{ color: '#f5deb3', fontSize: '2rem', marginBottom: '20px' }}>
+        <h2 style={{ color: '#f5deb3', fontSize: '2rem', marginBottom: '15px', marginTop: 0 }}>
           Latest Bullshit
         </h2>
       </div>

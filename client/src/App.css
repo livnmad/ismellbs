@@ -8,8 +8,8 @@
 .header {
   text-align: left;
   color: #f5deb3;
-  margin-bottom: 40px;
-  padding: 20px 0;
+  margin-bottom: 20px;
+  padding: 10px 0;
 }
 
 .header-content {
@@ -72,8 +72,8 @@
 .hero-section {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 30px;
-  margin-bottom: 60px;
+  gap: 20px;
+  margin-bottom: 30px;
   align-items: start;
 }
 
@@ -126,8 +126,8 @@
 .main-content {
   display: grid;
   grid-template-columns: 1fr;
-  gap: 30px;
-  margin-bottom: 40px;
+  gap: 20px;
+  margin-bottom: 20px;
 }
 
 @media (max-width: 1200px) {
@@ -144,17 +144,26 @@
 .card {
   background: #2a2a2a;
   border-radius: 12px;
-  padding: 30px;
+  padding: 20px;
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
   border: 1px solid #404040;
 }
 
 .card h2 {
-  margin-top: 0;
+  margin: 0;
   color: #f5deb3;
   border-bottom: 2px solid #404040;
   padding-bottom: 10px;
   font-size: 1.5rem;
+}
+
+.card-title {
+  color: #f5deb3;
+  font-size: 2rem;
+  margin-bottom: 15px;
+  margin-top: 0;
+  font-weight: 600;
+  flex-shrink: 0;
 }
 
 .form-group {

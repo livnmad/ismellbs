@@ -21,32 +21,44 @@ export class NewsService {
   async getUSPoliticsNews(limit: number = 10): Promise<NewsArticle[]> {
     try {
       // Use NewsAPI's everything endpoint for US politics and White House
+      // Request more than needed to ensure we get enough valid articles
       const response = await axios.get(`${this.BASE_URL}/everything`, {
         params: {
           q: 'white house OR congress OR senate OR biden OR trump OR politics',
           language: 'en',
           sortBy: 'publishedAt',
-          pageSize: limit,
+          pageSize: Math.max(limit * 2, 20), // Request 2x to ensure we have enough
           apiKey: this.API_KEY,
         },
       });
 
       if (response.data.status === 'ok') {
-        return response.data.articles.map((article: any) => ({
-          title: article.title,
-          description: article.description || '',
-          url: article.url,
-          publishedAt: article.publishedAt,
-          source: article.source.name,
-          urlToImage: article.urlToImage || undefined,
-        }));
+        const articles = response.data.articles
+          .filter((article: any) => article.title && article.description) // Filter out incomplete articles
+          .map((article: any) => ({
+            title: article.title,
+            description: article.description || '',
+            url: article.url,
+            publishedAt: article.publishedAt,
+            source: article.source.name,
+            urlToImage: article.urlToImage || undefined,
+          }))
+          .slice(0, limit); // Take only the requested number
+
+        // If we don't have enough articles, pad with mock data
+        if (articles.length < limit) {
+          const mockArticles = this.getMockNews().slice(0, limit - articles.length);
+          return [...articles, ...mockArticles];
+        }
+
+        return articles;
       }
 
-      return [];
+      return this.getMockNews().slice(0, limit);
     } catch (error) {
       console.error('Error fetching news:', error);
       // Return fallback mock data if API fails
-      return this.getMockNews();
+      return this.getMockNews().slice(0, limit);
     }
   }
 
