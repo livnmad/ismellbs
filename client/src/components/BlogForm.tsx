@@ -18,6 +18,7 @@ const BlogForm: React.FC<BlogFormProps> = ({ onPostCreated }) => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
+  const [isAnonymous, setIsAnonymous] = useState(false);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     setFormData({
@@ -60,7 +61,13 @@ const BlogForm: React.FC<BlogFormProps> = ({ onPostCreated }) => {
     setSuccess(null);
 
     try {
-      await blogApi.createPost(formData);
+      // If anonymous is checked, override the author name
+      const submitData = {
+        ...formData,
+        author: isAnonymous ? 'Anonymous' : formData.author,
+      };
+      
+      await blogApi.createPost(submitData);
       setSuccess('Post created successfully!');
       setFormData({
         title: 'Bullshit Alert',
@@ -70,6 +77,7 @@ const BlogForm: React.FC<BlogFormProps> = ({ onPostCreated }) => {
         tags: [],
       });
       setTagInput('');
+      setIsAnonymous(false);
       onPostCreated();
       
       setTimeout(() => setSuccess(null), 5000);
@@ -113,10 +121,22 @@ const BlogForm: React.FC<BlogFormProps> = ({ onPostCreated }) => {
             name="author"
             value={formData.author}
             onChange={handleChange}
-            required
+            required={!isAnonymous}
             maxLength={100}
             placeholder="Name"
+            disabled={isAnonymous}
           />
+        </div>
+
+        <div className="form-group checkbox-group">
+          <label className="checkbox-label">
+            <input
+              type="checkbox"
+              checked={isAnonymous}
+              onChange={(e) => setIsAnonymous(e.target.checked)}
+            />
+            <span>Post as Anonymous</span>
+          </label>
         </div>
 
         <div className="form-group">
