@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import './App.css';
 import BlogForm from './components/BlogForm';
 import BlogList from './components/BlogList';
+import NewsFeed from './components/NewsFeed';
 
 function App() {
   const [refreshTrigger, setRefreshTrigger] = useState(0);
@@ -23,6 +24,8 @@ function App() {
         </div>
         <BlogForm onPostCreated={handlePostCreated} />
       </div>
+
+      <NewsFeed />
 
       <div className="main-content">
         <h2 style={{ color: '#f5deb3', fontSize: '2rem', marginBottom: '20px' }}>

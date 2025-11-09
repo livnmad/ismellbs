@@ -14,11 +14,18 @@
     "dev:client": "cd client && npm start",
     "lint": "eslint . --ext .ts,.tsx"
   },
-  "keywords": ["blog", "elasticsearch", "react", "typescript", "node"],
+  "keywords": [
+    "blog",
+    "elasticsearch",
+    "react",
+    "typescript",
+    "node"
+  ],
   "author": "",
   "license": "ISC",
   "dependencies": {
     "@elastic/elasticsearch": "^8.10.0",
+    "axios": "^1.13.2",
     "cors": "^2.8.5",
     "dotenv": "^16.3.1",
     "express": "^4.18.2",
