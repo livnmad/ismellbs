@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import BlogForm from './BlogForm';
 import BlogList from './BlogList';
 import NewsFeed from './NewsFeed';
+import HotBullshit from './HotBullshit';
 
 const Home: React.FC = () => {
   const [refreshTrigger, setRefreshTrigger] = useState(0);
@@ -13,17 +14,16 @@ const Home: React.FC = () => {
   return (
     <>
       <div className="hero-section">
-        <div className="hero-illustration">
-          <img src="/bull.png" alt="Bullshit Bull" className="bull-graphic" />
+        <div className="left-column">
+          <BlogForm onPostCreated={handlePostCreated} />
+          <HotBullshit />
         </div>
-        <BlogForm onPostCreated={handlePostCreated} />
+        <NewsFeed />
       </div>
-
-      <NewsFeed />
 
       <div className="main-content">
         <h2 style={{ color: '#f5deb3', fontSize: '2rem', marginBottom: '20px' }}>
-          Random Bullshit Posts
+          Latest Bullshit
         </h2>
       </div>
 

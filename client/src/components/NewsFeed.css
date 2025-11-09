@@ -4,6 +4,10 @@
   padding: 30px;
   margin-bottom: 40px;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+  height: 100%;
+  min-height: 600px;
+  display: flex;
+  flex-direction: column;
 }
 
 .news-title {
@@ -11,12 +15,14 @@
   font-size: 2rem;
   margin-bottom: 25px;
   font-weight: 600;
+  flex-shrink: 0;
 }
 
 .news-list {
   display: flex;
   flex-direction: column;
   gap: 20px;
+  flex: 1;
 }
 
 .news-item {
