@@ -1,14 +1,11 @@
 .bullshit-fact {
-  position: fixed;
-  top: 20px;
-  right: 20px;
   background: linear-gradient(135deg, #2a2a2a 0%, #1a1a1a 100%);
   border: 2px solid #d2691e;
   border-radius: 12px;
   padding: 15px 20px;
-  max-width: 350px;
+  max-width: 100%;
+  margin-top: 20px;
   box-shadow: 0 4px 20px rgba(210, 105, 30, 0.3);
-  z-index: 1000;
 }
 
 .fact-header {

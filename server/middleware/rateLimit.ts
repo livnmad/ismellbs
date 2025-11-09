@@ -9,11 +9,13 @@ interface RateLimitEntry {
 class RateLimiter {
   private store: Map<string, RateLimitEntry> = new Map();
   private readonly windowMs: number;
-  private readonly maxRequests: number;
+  private readonly maxRequestsAnonymous: number;
+  private readonly maxRequestsAuthenticated: number;
 
-  constructor(windowMs: number = 5 * 60 * 1000, maxRequests: number = 1) {
+  constructor(windowMs: number = 5 * 60 * 1000, maxRequestsAnonymous: number = 1, maxRequestsAuthenticated: number = 5) {
     this.windowMs = windowMs;
-    this.maxRequests = maxRequests;
+    this.maxRequestsAnonymous = maxRequestsAnonymous;
+    this.maxRequestsAuthenticated = maxRequestsAuthenticated;
 
     // Clean up expired entries every minute
     setInterval(() => this.cleanup(), 60 * 1000);
@@ -28,20 +30,21 @@ class RateLimiter {
     }
   }
 
-  public check(ip: string): { allowed: boolean; resetTime?: number } {
+  public check(identifier: string, isAuthenticated: boolean = false): { allowed: boolean; resetTime?: number } {
     const now = Date.now();
-    const entry = this.store.get(ip);
+    const entry = this.store.get(identifier);
+    const maxRequests = isAuthenticated ? this.maxRequestsAuthenticated : this.maxRequestsAnonymous;
 
     if (!entry || entry.resetTime < now) {
       // New window or expired window
-      this.store.set(ip, {
+      this.store.set(identifier, {
         count: 1,
         resetTime: now + this.windowMs,
       });
       return { allowed: true };
     }
 
-    if (entry.count < this.maxRequests) {
+    if (entry.count < maxRequests) {
       // Within limit
       entry.count++;
       return { allowed: true };
@@ -59,27 +62,37 @@ class RateLimiter {
   }
 }
 
-// Create rate limiter instance (1 request per 5 minutes)
-const rateLimiter = new RateLimiter(5 * 60 * 1000, 1);
+// Create rate limiter instance (1 request per 5 minutes for anonymous, 5 for authenticated)
+const rateLimiter = new RateLimiter(5 * 60 * 1000, 1, 5);
 
 export const rateLimitMiddleware = (
   req: Request,
   res: Response,
   next: NextFunction
 ): void => {
-  // Get IP address from request
-  const ip =
-    (req.headers['x-forwarded-for'] as string)?.split(',')[0]?.trim() ||
-    req.socket.remoteAddress ||
-    'unknown';
+  // Check if user is authenticated by looking for userId in request body
+  const isAuthenticated = !!(req.body?.userId);
+  
+  // For authenticated users, use their userId as identifier
+  // For anonymous users, use their IP address
+  const identifier = isAuthenticated
+    ? `user-${req.body.userId}`
+    : ((req.headers['x-forwarded-for'] as string)?.split(',')[0]?.trim() ||
+       req.socket.remoteAddress ||
+       'unknown');
 
-  const result = rateLimiter.check(ip);
+  const result = rateLimiter.check(identifier, isAuthenticated);
 
   if (!result.allowed && result.resetTime) {
     const retryAfter = Math.ceil((result.resetTime - Date.now()) / 1000);
+    const limit = isAuthenticated ? 5 : 1;
+    const message = isAuthenticated
+      ? `You can only submit ${limit} posts every 5 minutes`
+      : 'You can only submit one post every 5 minutes. Create an account to post up to 5 times per 5 minutes!';
+    
     res.status(429).json({
       error: 'Too many submissions',
-      message: 'You can only submit one post every 5 minutes',
+      message,
       retryAfter,
       resetTime: new Date(result.resetTime).toISOString(),
     });

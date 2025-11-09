@@ -4,6 +4,7 @@ export interface BlogPost {
   author: string;
   email: string;
   ipAddress?: string;
+  userId?: string; // Optional - for registered users
   createdAt: Date;
   tags?: string[];
 }

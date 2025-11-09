@@ -12,14 +12,55 @@
   padding: 20px 0;
 }
 
+.header-content {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
 .header h1 {
   font-size: 5.5rem;
-  margin-bottom: 10px;
+  margin: 0;
   font-weight: 300;
   letter-spacing: 2px;
   color: #f5deb3;
   font-family: 'Lucida Handwriting', 'Segoe Script', cursive;
   font-style: italic;
+}
+
+.user-nav {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+.user-greeting {
+  color: #d2691e;
+  font-weight: bold;
+  font-size: 16px;
+}
+
+.logout-btn,
+.login-link {
+  padding: 8px 16px;
+  background: #d2691e;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: bold;
+  text-decoration: none;
+  display: inline-block;
+  transition: all 0.3s ease;
+  font-size: 14px;
+}
+
+.logout-btn:hover,
+.login-link:hover {
+  background: #ff8c00;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(210, 105, 30, 0.4);
 }
 
 .header p {
@@ -172,6 +213,19 @@
   opacity: 0.6;
 }
 
+.logged-in-info {
+  padding: 12px;
+  background: #2a2a2a;
+  border: 2px solid #d2691e;
+  border-radius: 6px;
+  margin-bottom: 20px;
+  color: #e0e0e0;
+}
+
+.logged-in-info strong {
+  color: #d2691e;
+}
+
 .tags-input {
   display: flex;
   flex-wrap: wrap;
@@ -233,6 +287,32 @@
   background: #555;
   cursor: not-allowed;
   transform: none;
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 1;
+    max-height: 100px;
+    margin-bottom: 20px;
+    padding: 12px;
+  }
+  to {
+    opacity: 0;
+    max-height: 0;
+    margin-bottom: 0;
+    padding: 0;
+  }
+}
+
+.error-message,
+.success-message {
+  overflow: hidden;
+  transition: all 0.3s ease-out;
+}
+
+.error-message.fade-out,
+.success-message.fade-out {
+  animation: slideUp 0.5s ease-out forwards;
 }
 
 .error-message {

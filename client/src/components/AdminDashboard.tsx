@@ -37,12 +37,22 @@ interface AdminUser {
   createdBy?: string;
 }
 
+interface AppUser {
+  id: string;
+  email: string;
+  displayName: string;
+  createdAt: string;
+  lastLogin?: string;
+  isActive: boolean;
+}
+
 const AdminDashboard: React.FC = () => {
   const [posts, setPosts] = useState<PostWithLocation[]>([]);
   const [admins, setAdmins] = useState<AdminUser[]>([]);
+  const [appUsers, setAppUsers] = useState<AppUser[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
-  const [activeTab, setActiveTab] = useState<'posts' | 'admins' | 'settings'>('posts');
+  const [activeTab, setActiveTab] = useState<'posts' | 'admins' | 'appusers' | 'settings'>('posts');
   
   // Admin creation
   const [newUsername, setNewUsername] = useState('');
@@ -64,6 +74,9 @@ const AdminDashboard: React.FC = () => {
     fetchPosts();
     if (activeTab === 'admins') {
       fetchAdmins();
+    }
+    if (activeTab === 'appusers') {
+      fetchAppUsers();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [activeTab]);
@@ -124,6 +137,23 @@ const AdminDashboard: React.FC = () => {
       }
     } catch (err: any) {
       console.error('Error fetching admins:', err);
+    }
+  };
+
+  const fetchAppUsers = async () => {
+    const token = localStorage.getItem('adminToken');
+    if (!token) return;
+
+    try {
+      const response = await axios.get('http://localhost:3001/api/admin/app-users', {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+
+      if (response.data.success) {
+        setAppUsers(response.data.data);
+      }
+    } catch (err: any) {
+      console.error('Error fetching app users:', err);
     }
   };
 
@@ -205,6 +235,46 @@ const AdminDashboard: React.FC = () => {
     }
   };
 
+  const handleToggleUserStatus = async (userId: string, isActive: boolean) => {
+    const token = localStorage.getItem('adminToken');
+    try {
+      const response = await axios.post(
+        `http://localhost:3001/api/admin/app-users/${userId}/toggle`,
+        { isActive },
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+
+      if (response.data.success) {
+        fetchAppUsers();
+      } else {
+        alert(response.data.message || 'Failed to update user status');
+      }
+    } catch (err: any) {
+      alert(err.response?.data?.message || 'Failed to update user status');
+    }
+  };
+
+  const handleDeleteAppUser = async (userId: string) => {
+    if (!window.confirm('Are you sure you want to delete this user? This action cannot be undone.')) {
+      return;
+    }
+
+    const token = localStorage.getItem('adminToken');
+    try {
+      const response = await axios.delete(`http://localhost:3001/api/admin/app-users/${userId}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+
+      if (response.data.success) {
+        fetchAppUsers();
+      } else {
+        alert(response.data.message || 'Failed to delete user');
+      }
+    } catch (err: any) {
+      alert(err.response?.data?.message || 'Failed to delete user');
+    }
+  };
+
   const handleDeletePost = async (postId: string) => {
     if (!window.confirm('Are you sure you want to delete this post?')) {
       return;
@@ -265,6 +335,12 @@ const AdminDashboard: React.FC = () => {
           onClick={() => setActiveTab('admins')}
         >
           👥 Admin Users
+        </button>
+        <button
+          className={activeTab === 'appusers' ? 'tab-active' : ''}
+          onClick={() => setActiveTab('appusers')}
+        >
+          👤 App Users
         </button>
         <button
           className={activeTab === 'settings' ? 'tab-active' : ''}
@@ -402,6 +478,47 @@ const AdminDashboard: React.FC = () => {
                   </button>
                 </div>
               ))}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {activeTab === 'appusers' && (
+        <div className="admin-users-container">
+          <div className="admin-section">
+            <h2>Registered App Users</h2>
+            <div className="admin-list">
+              {appUsers.length === 0 ? (
+                <p style={{ color: '#888' }}>No registered users yet</p>
+              ) : (
+                appUsers.map((user) => (
+                  <div key={user.id} className="admin-card app-user-card">
+                    <div className="admin-info">
+                      <strong>{user.displayName}</strong>
+                      <small>📧 {user.email}</small>
+                      <small>📅 Joined: {formatDate(user.createdAt)}</small>
+                      {user.lastLogin && <small>🕐 Last Login: {formatDate(user.lastLogin)}</small>}
+                      <small className={user.isActive ? 'status-active' : 'status-inactive'}>
+                        {user.isActive ? '✅ Active' : '❌ Inactive'}
+                      </small>
+                    </div>
+                    <div className="user-actions">
+                      <button
+                        onClick={() => handleToggleUserStatus(user.id, !user.isActive)}
+                        className={user.isActive ? 'btn-deactivate' : 'btn-activate'}
+                      >
+                        {user.isActive ? '🚫 Deactivate' : '✅ Activate'}
+                      </button>
+                      <button
+                        onClick={() => handleDeleteAppUser(user.id)}
+                        className="admin-delete-btn"
+                      >
+                        🗑️ Delete
+                      </button>
+                    </div>
+                  </div>
+                ))
+              )}
             </div>
           </div>
         </div>

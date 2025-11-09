@@ -7,6 +7,7 @@ const router = Router();
 // Helper to get services from global (initialized in server.ts)
 const getAuthService = () => (global as any).authService;
 const getAdminUserService = () => (global as any).adminUserService;
+const getUserService = () => (global as any).userService;
 
 /**
  * POST /api/admin/login
@@ -182,6 +183,63 @@ router.post('/change-password', authMiddleware, async (req: AuthRequest, res: Re
   } catch (error) {
     console.error('Error changing password:', error);
     res.status(500).json({ success: false, error: 'Failed to change password' });
+  }
+});
+
+/**
+ * GET /api/admin/app-users
+ * Get all registered app users (protected)
+ */
+router.get('/app-users', authMiddleware, async (req: AuthRequest, res: Response) => {
+  try {
+    const users = await getUserService().getAllUsers();
+    res.json({ success: true, data: users });
+  } catch (error) {
+    console.error('Error fetching app users:', error);
+    res.status(500).json({ success: false, error: 'Failed to fetch users' });
+  }
+});
+
+/**
+ * POST /api/admin/app-users/:userId/toggle
+ * Toggle user active status (protected)
+ */
+router.post('/app-users/:userId/toggle', authMiddleware, async (req: AuthRequest, res: Response) => {
+  try {
+    const { userId } = req.params;
+    const { isActive } = req.body;
+
+    if (typeof isActive !== 'boolean') {
+      res.status(400).json({ success: false, error: 'isActive must be a boolean' });
+      return;
+    }
+
+    const result = await getUserService().toggleUserStatus(userId, isActive);
+    res.json(result);
+  } catch (error) {
+    console.error('Error toggling user status:', error);
+    res.status(500).json({ success: false, error: 'Failed to toggle user status' });
+  }
+});
+
+/**
+ * DELETE /api/admin/app-users/:userId
+ * Delete an app user (protected)
+ */
+router.delete('/app-users/:userId', authMiddleware, async (req: AuthRequest, res: Response) => {
+  try {
+    const { userId } = req.params;
+    const result = await getUserService().deleteUser(userId);
+
+    if (!result.success) {
+      res.status(400).json(result);
+      return;
+    }
+
+    res.json(result);
+  } catch (error) {
+    console.error('Error deleting user:', error);
+    res.status(500).json({ success: false, error: 'Failed to delete user' });
   }
 });
 

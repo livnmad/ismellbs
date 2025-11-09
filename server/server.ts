@@ -7,10 +7,12 @@ import blogRoutes from './routes/blog.routes';
 import newsRoutes from './routes/news.routes';
 import commentRoutes from './routes/comment.routes';
 import adminRoutes from './routes/admin.routes';
+import userRoutes from './routes/user.routes';
 import { createIndex, testConnection } from './config/elasticsearch';
 import esClient from './config/elasticsearch';
 import { AdminUserService } from './services/adminUser.service';
 import { AuthService } from './services/auth.service';
+import { UserService } from './services/user.service';
 
 dotenv.config();
 
@@ -38,6 +40,7 @@ app.use('/api', blogRoutes);
 app.use('/api/news', newsRoutes);
 app.use('/api/comments', commentRoutes);
 app.use('/api/admin', adminRoutes);
+app.use('/api/users', userRoutes);
 
 // Serve static files from React build in production
 if (process.env.NODE_ENV === 'production') {
@@ -74,12 +77,18 @@ const startServer = async () => {
     await adminUserService.initializeIndex();
     console.log('Admin users index initialized');
 
+    // Initialize user service and create users index
+    const userService = new UserService(esClient);
+    await userService.initializeIndex();
+    console.log('Users index initialized');
+
     // Initialize auth service with admin user service
     const authService = new AuthService(adminUserService);
     
     // Make services available globally for routes
     (global as any).adminUserService = adminUserService;
     (global as any).authService = authService;
+    (global as any).userService = userService;
 
     // Clean up lockouts every hour
     setInterval(() => authService.cleanupLockouts(), 60 * 60 * 1000);

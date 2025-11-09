@@ -1,27 +1,57 @@
-﻿import React from 'react';
-import { Routes, Route } from 'react-router-dom';
+﻿import React, { useState, useEffect } from 'react';
+import { Routes, Route, useNavigate } from 'react-router-dom';
 import './App.css';
 import Home from './components/Home';
 import PostDetail from './components/PostDetail';
 import BullshitFact from './components/BullshitFact';
 import AdminLogin from './components/AdminLogin';
 import AdminDashboard from './components/AdminDashboard';
+import UserLogin from './components/UserLogin';
 
 function App() {
+  const [userProfile, setUserProfile] = useState<any>(null);
+
+  useEffect(() => {
+    const profile = localStorage.getItem('userProfile');
+    if (profile) {
+      setUserProfile(JSON.parse(profile));
+    }
+  }, []);
+
+  const handleLogout = () => {
+    localStorage.removeItem('userToken');
+    localStorage.removeItem('userProfile');
+    setUserProfile(null);
+    window.location.href = '/';
+  };
+
   return (
     <div className="App">
-      <BullshitFact />
-      
       <header className="header">
-        <h1 onClick={() => window.location.href = '/'} style={{ cursor: 'pointer' }}>
-          I Smell Bullshit
-        </h1>
+        <div className="header-content">
+          <h1 onClick={() => window.location.href = '/'} style={{ cursor: 'pointer' }}>
+            I Smell Bullshit
+          </h1>
+          {userProfile ? (
+            <div className="user-nav">
+              <span className="user-greeting">👤 {userProfile.displayName}</span>
+              <button onClick={handleLogout} className="logout-btn">Logout</button>
+            </div>
+          ) : (
+            <div className="user-nav">
+              <a href="/login" className="login-link">Login / Sign Up</a>
+            </div>
+          )}
+        </div>
         <p>Welcome to I Smell Bullshit! We're your daily dose of "did they really just say that?" We call it like we smell it from politics to pop culture, corporate nonsense to conspiracy clowns. If it stinks, we're on it.</p>
+        
+        <BullshitFact />
       </header>
 
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/post/:postId" element={<PostDetail />} />
+        <Route path="/login" element={<UserLogin />} />
         <Route path="/admin" element={<AdminLogin />} />
         <Route path="/admin/dashboard" element={<AdminDashboard />} />
       </Routes>
