@@ -1,5 +1,6 @@
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
+import { AdminUserService } from './adminUser.service';
 
 interface LoginAttempt {
   count: number;
@@ -8,17 +9,15 @@ interface LoginAttempt {
 }
 
 export class AuthService {
-  private readonly ADMIN_USERNAME = 'admin';
-  private readonly ADMIN_PASSWORD_HASH: string;
   private readonly JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key-change-this';
   private readonly MAX_ATTEMPTS = 2;
   private readonly LOCKOUT_DURATION = 24 * 60 * 60 * 1000; // 24 hours
   
   private loginAttempts: Map<string, LoginAttempt> = new Map();
+  private adminUserService: AdminUserService;
 
-  constructor() {
-    // Hash the password 'admin' - in production, this should be from env
-    this.ADMIN_PASSWORD_HASH = bcrypt.hashSync('admin', 10);
+  constructor(adminUserService: AdminUserService) {
+    this.adminUserService = adminUserService;
   }
 
   async login(username: string, password: string, ipAddress: string): Promise<{ token?: string; error?: string; lockedUntil?: Date }> {
@@ -31,29 +30,16 @@ export class AuthService {
       };
     }
 
-    // Validate credentials
-    if (username !== this.ADMIN_USERNAME || !bcrypt.compareSync(password, this.ADMIN_PASSWORD_HASH)) {
-      // Record failed attempt
-      const currentAttempt = this.loginAttempts.get(ipAddress) || { count: 0, lastAttempt: new Date() };
-      currentAttempt.count += 1;
-      currentAttempt.lastAttempt = new Date();
+    // Find user in database
+    const user = await this.adminUserService.findByUsername(username);
+    if (!user) {
+      return this.recordFailedAttempt(ipAddress);
+    }
 
-      if (currentAttempt.count >= this.MAX_ATTEMPTS) {
-        currentAttempt.lockedUntil = new Date(Date.now() + this.LOCKOUT_DURATION);
-        this.loginAttempts.set(ipAddress, currentAttempt);
-        
-        return {
-          error: `Too many failed attempts. Account locked for 24 hours until ${currentAttempt.lockedUntil.toLocaleString()}`,
-          lockedUntil: currentAttempt.lockedUntil,
-        };
-      }
-
-      this.loginAttempts.set(ipAddress, currentAttempt);
-      const remainingAttempts = this.MAX_ATTEMPTS - currentAttempt.count;
-      
-      return {
-        error: `Invalid credentials. ${remainingAttempts} attempt${remainingAttempts === 1 ? '' : 's'} remaining.`,
-      };
+    // Validate password
+    const isValidPassword = await bcrypt.compare(password, user.password);
+    if (!isValidPassword) {
+      return this.recordFailedAttempt(ipAddress);
     }
 
     // Clear failed attempts on successful login
@@ -61,12 +47,35 @@ export class AuthService {
 
     // Generate JWT token
     const token = jwt.sign(
-      { username: this.ADMIN_USERNAME, role: 'admin' },
+      { username: user.username, role: 'admin' },
       this.JWT_SECRET,
       { expiresIn: '24h' }
     );
 
     return { token };
+  }
+
+  private recordFailedAttempt(ipAddress: string): { error: string; lockedUntil?: Date } {
+    const currentAttempt = this.loginAttempts.get(ipAddress) || { count: 0, lastAttempt: new Date() };
+    currentAttempt.count += 1;
+    currentAttempt.lastAttempt = new Date();
+
+    if (currentAttempt.count >= this.MAX_ATTEMPTS) {
+      currentAttempt.lockedUntil = new Date(Date.now() + this.LOCKOUT_DURATION);
+      this.loginAttempts.set(ipAddress, currentAttempt);
+      
+      return {
+        error: `Too many failed attempts. Account locked for 24 hours until ${currentAttempt.lockedUntil.toLocaleString()}`,
+        lockedUntil: currentAttempt.lockedUntil,
+      };
+    }
+
+    this.loginAttempts.set(ipAddress, currentAttempt);
+    const remainingAttempts = this.MAX_ATTEMPTS - currentAttempt.count;
+    
+    return {
+      error: `Invalid credentials. ${remainingAttempts} attempt${remainingAttempts === 1 ? '' : 's'} remaining.`,
+    };
   }
 
   verifyToken(token: string): { valid: boolean; username?: string } {
@@ -88,8 +97,3 @@ export class AuthService {
     }
   }
 }
-
-export const authService = new AuthService();
-
-// Clean up lockouts every hour
-setInterval(() => authService.cleanupLockouts(), 60 * 60 * 1000);

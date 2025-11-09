@@ -8,6 +8,9 @@ import newsRoutes from './routes/news.routes';
 import commentRoutes from './routes/comment.routes';
 import adminRoutes from './routes/admin.routes';
 import { createIndex, testConnection } from './config/elasticsearch';
+import esClient from './config/elasticsearch';
+import { AdminUserService } from './services/adminUser.service';
+import { AuthService } from './services/auth.service';
 
 dotenv.config();
 
@@ -65,6 +68,21 @@ const startServer = async () => {
 
     console.log('Creating Elasticsearch index...');
     await createIndex();
+
+    // Initialize admin user service and create admin index
+    const adminUserService = new AdminUserService(esClient);
+    await adminUserService.initializeIndex();
+    console.log('Admin users index initialized');
+
+    // Initialize auth service with admin user service
+    const authService = new AuthService(adminUserService);
+    
+    // Make services available globally for routes
+    (global as any).adminUserService = adminUserService;
+    (global as any).authService = authService;
+
+    // Clean up lockouts every hour
+    setInterval(() => authService.cleanupLockouts(), 60 * 60 * 1000);
 
     app.listen(PORT, () => {
       console.log(`Server is running on port ${PORT}`);

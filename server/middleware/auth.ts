@@ -1,11 +1,12 @@
 import { Request, Response, NextFunction } from 'express';
-import { authService } from '../services/auth.service';
 
 export interface AuthRequest extends Request {
   user?: {
     username: string;
   };
 }
+
+const getAuthService = () => (global as any).authService;
 
 export const authMiddleware = (req: AuthRequest, res: Response, next: NextFunction): void => {
   const authHeader = req.headers.authorization;
@@ -16,7 +17,7 @@ export const authMiddleware = (req: AuthRequest, res: Response, next: NextFuncti
   }
 
   const token = authHeader.substring(7);
-  const verification = authService.verifyToken(token);
+  const verification = getAuthService().verifyToken(token);
 
   if (!verification.valid) {
     res.status(401).json({ success: false, error: 'Invalid or expired token' });

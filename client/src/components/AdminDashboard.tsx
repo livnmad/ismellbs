@@ -31,16 +31,42 @@ interface PostWithLocation {
   };
 }
 
+interface AdminUser {
+  username: string;
+  createdAt: string;
+  createdBy?: string;
+}
+
 const AdminDashboard: React.FC = () => {
   const [posts, setPosts] = useState<PostWithLocation[]>([]);
+  const [admins, setAdmins] = useState<AdminUser[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [activeTab, setActiveTab] = useState<'posts' | 'admins' | 'settings'>('posts');
+  
+  // Admin creation
+  const [newUsername, setNewUsername] = useState('');
+  const [newPassword, setNewPassword] = useState('');
+  const [createError, setCreateError] = useState('');
+  const [createSuccess, setCreateSuccess] = useState('');
+  
+  // Password change
+  const [oldPassword, setOldPassword] = useState('');
+  const [newPasswordChange, setNewPasswordChange] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [passwordError, setPasswordError] = useState('');
+  const [passwordSuccess, setPasswordSuccess] = useState('');
+  
   const navigate = useNavigate();
 
   useEffect(() => {
     verifyAuth();
     fetchPosts();
-  }, []);
+    if (activeTab === 'admins') {
+      fetchAdmins();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [activeTab]);
 
   const verifyAuth = async () => {
     const token = localStorage.getItem('adminToken');
@@ -81,6 +107,101 @@ const AdminDashboard: React.FC = () => {
       console.error('Error fetching posts:', err);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const fetchAdmins = async () => {
+    const token = localStorage.getItem('adminToken');
+    if (!token) return;
+
+    try {
+      const response = await axios.get('http://localhost:3001/api/admin/users', {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+
+      if (response.data.success) {
+        setAdmins(response.data.data);
+      }
+    } catch (err: any) {
+      console.error('Error fetching admins:', err);
+    }
+  };
+
+  const handleCreateAdmin = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setCreateError('');
+    setCreateSuccess('');
+
+    const token = localStorage.getItem('adminToken');
+    try {
+      const response = await axios.post(
+        'http://localhost:3001/api/admin/users/create',
+        { username: newUsername, password: newPassword },
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+
+      if (response.data.success) {
+        setCreateSuccess('Admin created successfully!');
+        setNewUsername('');
+        setNewPassword('');
+        fetchAdmins();
+      } else {
+        setCreateError(response.data.message || 'Failed to create admin');
+      }
+    } catch (err: any) {
+      setCreateError(err.response?.data?.message || 'Failed to create admin');
+    }
+  };
+
+  const handleDeleteAdmin = async (username: string) => {
+    if (!window.confirm(`Are you sure you want to delete admin "${username}"?`)) {
+      return;
+    }
+
+    const token = localStorage.getItem('adminToken');
+    try {
+      const response = await axios.delete(`http://localhost:3001/api/admin/users/${username}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+
+      if (response.data.success) {
+        fetchAdmins();
+      } else {
+        alert(response.data.message || 'Failed to delete admin');
+      }
+    } catch (err: any) {
+      alert(err.response?.data?.message || 'Failed to delete admin');
+    }
+  };
+
+  const handleChangePassword = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setPasswordError('');
+    setPasswordSuccess('');
+
+    if (newPasswordChange !== confirmPassword) {
+      setPasswordError('New passwords do not match');
+      return;
+    }
+
+    const token = localStorage.getItem('adminToken');
+    try {
+      const response = await axios.post(
+        'http://localhost:3001/api/admin/change-password',
+        { oldPassword, newPassword: newPasswordChange },
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+
+      if (response.data.success) {
+        setPasswordSuccess('Password changed successfully!');
+        setOldPassword('');
+        setNewPasswordChange('');
+        setConfirmPassword('');
+      } else {
+        setPasswordError(response.data.message || 'Failed to change password');
+      }
+    } catch (err: any) {
+      setPasswordError(err.response?.data?.message || 'Failed to change password');
     }
   };
 
@@ -132,76 +253,205 @@ const AdminDashboard: React.FC = () => {
 
       {error && <div className="admin-error">{error}</div>}
 
-      <div className="admin-map-container">
-        <h2>Post Origins Map</h2>
-        {postsWithLocations.length > 0 ? (
-          <MapContainer
-            center={[39.8283, -98.5795]} // Center of US
-            zoom={4}
-            style={{ height: '500px', width: '100%', borderRadius: '12px' }}
-          >
-            <TileLayer
-              url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-              attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-            />
-            {postsWithLocations.map((post) =>
-              post.location ? (
-                <Marker key={post.id} position={[post.location.lat, post.location.lon]}>
-                  <Popup>
-                    <div className="map-popup">
-                      <strong>{post.author}</strong>
-                      <p>{post.content.substring(0, 100)}...</p>
-                      <small>
-                        {post.location.city}, {post.location.region}, {post.location.country}
-                      </small>
-                      <br />
-                      <small>IP: {post.ipAddress}</small>
-                    </div>
-                  </Popup>
-                </Marker>
-              ) : null
-            )}
-          </MapContainer>
-        ) : (
-          <div className="no-location-data">No posts with location data yet</div>
-        )}
+      <div className="admin-tabs">
+        <button
+          className={activeTab === 'posts' ? 'tab-active' : ''}
+          onClick={() => setActiveTab('posts')}
+        >
+          📝 Posts & Map
+        </button>
+        <button
+          className={activeTab === 'admins' ? 'tab-active' : ''}
+          onClick={() => setActiveTab('admins')}
+        >
+          👥 Admin Users
+        </button>
+        <button
+          className={activeTab === 'settings' ? 'tab-active' : ''}
+          onClick={() => setActiveTab('settings')}
+        >
+          ⚙️ Settings
+        </button>
       </div>
 
-      <div className="admin-posts-container">
-        <h2>All Posts</h2>
-        <div className="admin-posts-list">
-          {posts.map((post) => (
-            <div key={post.id} className="admin-post-card">
-              <div className="admin-post-header">
-                <div>
-                  <h3>{post.author}</h3>
-                  <span className="admin-post-date">{formatDate(post.createdAt)}</span>
-                </div>
-                <button onClick={() => handleDeletePost(post.id)} className="admin-delete-btn">
-                  🗑️ Delete
-                </button>
-              </div>
-
-              <p className="admin-post-content">{post.content}</p>
-
-              <div className="admin-post-meta">
-                <div className="admin-meta-item">
-                  <strong>Email:</strong> {post.email}
-                </div>
-                <div className="admin-meta-item">
-                  <strong>IP:</strong> {post.ipAddress}
-                </div>
-                {post.location && (
-                  <div className="admin-meta-item">
-                    <strong>Location:</strong> {post.location.city}, {post.location.region},{' '}
-                    {post.location.country}
-                  </div>
+      {activeTab === 'posts' && (
+        <>
+          <div className="admin-map-container">
+            <h2>Post Origins Map</h2>
+            {postsWithLocations.length > 0 ? (
+              <MapContainer
+                center={[39.8283, -98.5795]} // Center of US
+                zoom={4}
+                style={{ height: '500px', width: '100%', borderRadius: '12px' }}
+              >
+                <TileLayer
+                  url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+                  attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+                />
+                {postsWithLocations.map((post) =>
+                  post.location ? (
+                    <Marker key={post.id} position={[post.location.lat, post.location.lon]}>
+                      <Popup>
+                        <div className="map-popup">
+                          <strong>{post.author}</strong>
+                          <p>{post.content.substring(0, 100)}...</p>
+                          <small>
+                            {post.location.city}, {post.location.region}, {post.location.country}
+                          </small>
+                          <br />
+                          <small>IP: {post.ipAddress}</small>
+                        </div>
+                      </Popup>
+                    </Marker>
+                  ) : null
                 )}
-              </div>
+              </MapContainer>
+            ) : (
+              <div className="no-location-data">No posts with location data yet</div>
+            )}
+          </div>
+
+          <div className="admin-posts-container">
+            <h2>All Posts</h2>
+            <div className="admin-posts-list">
+              {posts.map((post) => (
+                <div key={post.id} className="admin-post-card">
+                  <div className="admin-post-header">
+                    <div>
+                      <h3>{post.author}</h3>
+                      <span className="admin-post-date">{formatDate(post.createdAt)}</span>
+                    </div>
+                    <button onClick={() => handleDeletePost(post.id)} className="admin-delete-btn">
+                      🗑️ Delete
+                    </button>
+                  </div>
+
+                  <p className="admin-post-content">{post.content}</p>
+
+                  <div className="admin-post-meta">
+                    <div className="admin-meta-item">
+                      <strong>Email:</strong> {post.email}
+                    </div>
+                    <div className="admin-meta-item">
+                      <strong>IP:</strong> {post.ipAddress}
+                    </div>
+                    {post.location && (
+                      <div className="admin-meta-item">
+                        <strong>Location:</strong> {post.location.city}, {post.location.region},{' '}
+                        {post.location.country}
+                      </div>
+                    )}
+                  </div>
+                </div>
+              ))}
             </div>
-          ))}
+          </div>
+        </>
+      )}
+
+      {activeTab === 'admins' && (
+        <div className="admin-users-container">
+          <div className="admin-section">
+            <h2>Create New Admin</h2>
+            <form onSubmit={handleCreateAdmin} className="admin-form">
+              {createError && <div className="form-error">{createError}</div>}
+              {createSuccess && <div className="form-success">{createSuccess}</div>}
+              
+              <div className="form-group">
+                <label>Username</label>
+                <input
+                  type="text"
+                  value={newUsername}
+                  onChange={(e) => setNewUsername(e.target.value)}
+                  required
+                  minLength={3}
+                />
+              </div>
+              
+              <div className="form-group">
+                <label>Password (min 6 characters)</label>
+                <input
+                  type="password"
+                  value={newPassword}
+                  onChange={(e) => setNewPassword(e.target.value)}
+                  required
+                  minLength={6}
+                />
+              </div>
+              
+              <button type="submit" className="btn-primary">Create Admin</button>
+            </form>
+          </div>
+
+          <div className="admin-section">
+            <h2>Existing Admins</h2>
+            <div className="admin-list">
+              {admins.map((admin) => (
+                <div key={admin.username} className="admin-card">
+                  <div className="admin-info">
+                    <strong>{admin.username}</strong>
+                    <small>Created: {formatDate(admin.createdAt)}</small>
+                    {admin.createdBy && <small>By: {admin.createdBy}</small>}
+                  </div>
+                  <button
+                    onClick={() => handleDeleteAdmin(admin.username)}
+                    className="admin-delete-btn"
+                    disabled={admin.username === 'admin'}
+                  >
+                    🗑️ Delete
+                  </button>
+                </div>
+              ))}
+            </div>
+          </div>
         </div>
-      </div>
+      )}
+
+      {activeTab === 'settings' && (
+        <div className="admin-settings-container">
+          <div className="admin-section">
+            <h2>Change Password</h2>
+            <form onSubmit={handleChangePassword} className="admin-form">
+              {passwordError && <div className="form-error">{passwordError}</div>}
+              {passwordSuccess && <div className="form-success">{passwordSuccess}</div>}
+              
+              <div className="form-group">
+                <label>Current Password</label>
+                <input
+                  type="password"
+                  value={oldPassword}
+                  onChange={(e) => setOldPassword(e.target.value)}
+                  required
+                />
+              </div>
+              
+              <div className="form-group">
+                <label>New Password (min 6 characters)</label>
+                <input
+                  type="password"
+                  value={newPasswordChange}
+                  onChange={(e) => setNewPasswordChange(e.target.value)}
+                  required
+                  minLength={6}
+                />
+              </div>
+              
+              <div className="form-group">
+                <label>Confirm New Password</label>
+                <input
+                  type="password"
+                  value={confirmPassword}
+                  onChange={(e) => setConfirmPassword(e.target.value)}
+                  required
+                  minLength={6}
+                />
+              </div>
+              
+              <button type="submit" className="btn-primary">Change Password</button>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
