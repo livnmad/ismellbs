@@ -5,6 +5,7 @@ import dotenv from 'dotenv';
 import path from 'path';
 import blogRoutes from './routes/blog.routes';
 import newsRoutes from './routes/news.routes';
+import commentRoutes from './routes/comment.routes';
 import { createIndex, testConnection } from './config/elasticsearch';
 
 dotenv.config();
@@ -31,6 +32,7 @@ app.get('/health', (_req: Request, res: Response) => {
 // API routes
 app.use('/api', blogRoutes);
 app.use('/api/news', newsRoutes);
+app.use('/api/comments', commentRoutes);
 
 // Serve static files from React build in production
 if (process.env.NODE_ENV === 'production') {

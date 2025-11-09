@@ -48,14 +48,14 @@ router.get('/posts/:id', async (req: Request, res: Response) => {
     const post = await blogService.getPostById(id);
 
     if (!post) {
-      res.status(404).json({ error: 'Post not found' });
+      res.status(404).json({ success: false, error: 'Post not found' });
       return;
     }
 
-    res.json(post);
+    res.json({ success: true, data: post });
   } catch (error) {
     console.error('Error in GET /posts/:id:', error);
-    res.status(500).json({ error: 'Failed to fetch post' });
+    res.status(500).json({ success: false, error: 'Failed to fetch post' });
   }
 });
 

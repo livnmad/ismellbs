@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { blogApi, BlogPost, PaginatedResponse } from '../services/api';
 
 interface BlogListProps {
@@ -6,6 +7,7 @@ interface BlogListProps {
 }
 
 const BlogList: React.FC<BlogListProps> = ({ refreshTrigger }) => {
+  const navigate = useNavigate();
   const [posts, setPosts] = useState<BlogPost[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -72,7 +74,12 @@ const BlogList: React.FC<BlogListProps> = ({ refreshTrigger }) => {
       ) : (
         <>
           {posts.map((post) => (
-            <div key={post.id} className="blog-post">
+            <div 
+              key={post.id} 
+              className="blog-post"
+              onClick={() => navigate(`/post/${post.id}`)}
+              style={{ cursor: 'pointer' }}
+            >
               <div className="blog-post-meta">
                 <span><strong>{post.author}</strong></span>
               </div>

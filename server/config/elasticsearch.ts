@@ -8,6 +8,7 @@ const elasticsearchClient = new Client({
 });
 
 export const INDEX_NAME = 'i-smell-bullshit-blog';
+export const COMMENTS_INDEX = 'i-smell-bullshit-comments';
 
 export const createIndex = async (): Promise<void> => {
   try {
@@ -63,6 +64,60 @@ export const createIndex = async (): Promise<void> => {
       console.log(`Index "${INDEX_NAME}" created successfully`);
     } else {
       console.log(`Index "${INDEX_NAME}" already exists`);
+    }
+
+    // Create comments index
+    const commentsIndexExists = await elasticsearchClient.indices.exists({
+      index: COMMENTS_INDEX,
+    });
+
+    if (!commentsIndexExists) {
+      await elasticsearchClient.indices.create({
+        index: COMMENTS_INDEX,
+        body: {
+          mappings: {
+            properties: {
+              postId: {
+                type: 'keyword',
+              },
+              content: {
+                type: 'text',
+              },
+              author: {
+                type: 'text',
+                fields: {
+                  keyword: {
+                    type: 'keyword',
+                  },
+                },
+              },
+              ipAddress: {
+                type: 'ip',
+              },
+              createdAt: {
+                type: 'date',
+              },
+              reactions: {
+                type: 'object',
+                properties: {
+                  like: { type: 'integer' },
+                  love: { type: 'integer' },
+                  angry: { type: 'integer' },
+                  laugh: { type: 'integer' },
+                  bs: { type: 'integer' },
+                },
+              },
+            },
+          },
+          settings: {
+            number_of_shards: 1,
+            number_of_replicas: 1,
+          },
+        },
+      });
+      console.log(`Index "${COMMENTS_INDEX}" created successfully`);
+    } else {
+      console.log(`Index "${COMMENTS_INDEX}" already exists`);
     }
   } catch (error) {
     console.error('Error creating index:', error);
