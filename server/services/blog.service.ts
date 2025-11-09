@@ -1,5 +1,6 @@
 import elasticsearchClient, { INDEX_NAME } from '../config/elasticsearch';
 import { BlogPost, BlogPostDocument, PaginatedResponse } from '../types/blog.types';
+import { commentService } from './comment.service';
 
 export class BlogService {
   async createPost(post: BlogPost): Promise<BlogPostDocument> {
@@ -53,8 +54,16 @@ export class BlogService {
         ...hit._source,
       }));
 
+      // Add comment counts to each post
+      const postsWithComments = await Promise.all(
+        posts.map(async (post) => ({
+          ...post,
+          commentCount: await commentService.getCommentCount(post.id),
+        }))
+      );
+
       return {
-        data: posts,
+        data: postsWithComments,
         total,
         page,
         pageSize,

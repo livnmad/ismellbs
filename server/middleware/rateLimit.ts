@@ -70,6 +70,13 @@ export const rateLimitMiddleware = (
   res: Response,
   next: NextFunction
 ): void => {
+  // Check for bypass header
+  const bypassHeader = req.headers['x-bypass-rate-limit'];
+  if (bypassHeader === 'true') {
+    next();
+    return;
+  }
+
   // Check if user is authenticated by looking for userId in request body
   const isAuthenticated = !!(req.body?.userId);
   

@@ -11,6 +11,7 @@ export interface BlogPost {
 
 export interface BlogPostDocument extends BlogPost {
   id: string;
+  commentCount?: number;
 }
 
 export interface PaginatedResponse<T> {

@@ -2,6 +2,8 @@ import { Router, Request, Response } from 'express';
 import { commentService } from '../services/comment.service';
 import { body, validationResult } from 'express-validator';
 import xss from 'xss';
+import rateLimiter from '../middleware/rateLimit';
+import jwt from 'jsonwebtoken';
 
 const router = Router();
 
@@ -32,6 +34,50 @@ router.post('/', commentValidation, async (req: Request, res: Response) => {
   }
 
   try {
+    // Check for bypass header
+    const bypassHeader = req.headers['x-bypass-rate-limit'];
+    const shouldBypass = bypassHeader === 'true';
+
+    // Check if user is authenticated
+    const token = req.headers.authorization?.split(' ')[1];
+    let isAuthenticated = false;
+    let userId = undefined;
+
+    if (token) {
+      try {
+        const decoded = jwt.verify(token, process.env.JWT_SECRET || 'your-secret-key') as any;
+        isAuthenticated = true;
+        userId = decoded.id;
+      } catch (err) {
+        // Token invalid, treat as anonymous
+      }
+    }
+
+    // Check rate limit (1/5min for anonymous, 5/5min for authenticated) unless bypassed
+    if (!shouldBypass) {
+      const identifier = isAuthenticated && userId
+        ? `user-comment-${userId}`
+        : ((req.headers['x-forwarded-for'] as string)?.split(',')[0]?.trim() ||
+           req.socket.remoteAddress ||
+           'unknown');
+
+      const result = rateLimiter.check(identifier, isAuthenticated);
+      
+      if (!result.allowed && result.resetTime) {
+        const retryAfter = Math.ceil((result.resetTime - Date.now()) / 1000);
+        const limit = isAuthenticated ? 5 : 1;
+        const message = isAuthenticated
+          ? `You can only submit ${limit} comments every 5 minutes`
+          : 'You can only submit one comment every 5 minutes. Create an account to comment up to 5 times per 5 minutes!';
+        
+        return res.status(429).json({
+          success: false,
+          message,
+          retryAfter,
+        });
+      }
+    }
+
     const { postId, content, author } = req.body;
     const ipAddress = req.ip || req.socket.remoteAddress || 'unknown';
 

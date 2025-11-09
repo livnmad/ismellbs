@@ -10,6 +10,22 @@ export interface BlogPost {
   email: string;
   createdAt: string;
   tags?: string[];
+  commentCount?: number;
+}
+
+export interface Comment {
+  id: string;
+  postId: string;
+  content: string;
+  author: string;
+  createdAt: string;
+  reactions: {
+    like: number;
+    love: number;
+    angry: number;
+    laugh: number;
+    bs: number;
+  };
 }
 
 export interface CreateBlogPostDTO {
@@ -49,6 +65,31 @@ export const blogApi = {
   searchPosts: async (query: string, page: number = 1): Promise<PaginatedResponse> => {
     const response = await api.get(`/posts/search?q=${encodeURIComponent(query)}&page=${page}`);
     return response.data;
+  },
+};
+
+export const commentApi = {
+  getComments: async (postId: string): Promise<Comment[]> => {
+    const token = localStorage.getItem('token');
+    const response = await api.get(`/comments/${postId}`, {
+      headers: token ? { Authorization: `Bearer ${token}` } : {},
+    });
+    return response.data.data;
+  },
+
+  createComment: async (postId: string, content: string, author: string): Promise<Comment> => {
+    const token = localStorage.getItem('token');
+    const response = await api.post('/comments', 
+      { postId, content, author },
+      {
+        headers: token ? { Authorization: `Bearer ${token}` } : {},
+      }
+    );
+    return response.data.data;
+  },
+
+  addReaction: async (commentId: string, reactionType: string): Promise<void> => {
+    await api.post(`/comments/${commentId}/react`, { reactionType });
   },
 };
 

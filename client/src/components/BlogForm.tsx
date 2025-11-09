@@ -20,6 +20,8 @@ const BlogForm: React.FC<BlogFormProps> = ({ onPostCreated }) => {
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
   const [isAnonymous, setIsAnonymous] = useState(false);
+  const [errorFading, setErrorFading] = useState(false);
+  const [successFading, setSuccessFading] = useState(false);
 
   React.useEffect(() => {
     const profile = localStorage.getItem('userProfile');
@@ -89,6 +91,7 @@ const BlogForm: React.FC<BlogFormProps> = ({ onPostCreated }) => {
       
       await blogApi.createPost(submitData);
       setSuccess('Post created successfully!');
+      setSuccessFading(false);
       
       // Reset form appropriately
       if (userProfile) {
@@ -113,6 +116,7 @@ const BlogForm: React.FC<BlogFormProps> = ({ onPostCreated }) => {
       setTagInput('');
       onPostCreated();
       
+      setTimeout(() => setSuccessFading(true), 4500);
       setTimeout(() => setSuccess(null), 5000);
     } catch (err) {
       if (axios.isAxiosError(err)) {
@@ -132,6 +136,7 @@ const BlogForm: React.FC<BlogFormProps> = ({ onPostCreated }) => {
         setError('An unexpected error occurred');
       }
       
+      setTimeout(() => setErrorFading(true), 4500);
       setTimeout(() => setError(null), 5000);
     } finally {
       setLoading(false);
@@ -142,8 +147,8 @@ const BlogForm: React.FC<BlogFormProps> = ({ onPostCreated }) => {
     <div className="card">
       <h2>Post some bullshit</h2>
       
-      {error && <div className="error-message">{error}</div>}
-      {success && <div className="success-message">{success}</div>}
+      {error && <div className={`error-message ${errorFading ? 'fade-out' : ''}`}>{error}</div>}
+      {success && <div className={`success-message ${successFading ? 'fade-out' : ''}`}>{success}</div>}
 
       <form onSubmit={handleSubmit}>
         {!userProfile && (
