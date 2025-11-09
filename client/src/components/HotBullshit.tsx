@@ -31,22 +31,6 @@ const HotBullshit: React.FC = () => {
     }
   };
 
-  const formatDate = (dateString: string) => {
-    const date = new Date(dateString);
-    const now = new Date();
-    const diffMs = now.getTime() - date.getTime();
-    const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
-    
-    if (diffHours < 1) {
-      return 'Just now';
-    } else if (diffHours < 24) {
-      return `${diffHours}h ago`;
-    } else {
-      const diffDays = Math.floor(diffHours / 24);
-      return `${diffDays}d ago`;
-    }
-  };
-
   if (loading) {
     return (
       <div className="hot-bullshit">
@@ -68,16 +52,18 @@ const HotBullshit: React.FC = () => {
           <div 
             key={post.id}
             className={`hot-post ${index === 0 ? 'hot-post-first' : 'hot-post-second'}`}
-            onClick={() => navigate(`/post/${post.id}`)}
+            onClick={() => navigate(`/post/${post.slug || post.id}`)}
           >
             <div className="hot-rank">#{index + 1}</div>
+            {post.title && (
+              <div className="hot-post-title">{post.title}</div>
+            )}
             <div className="hot-post-header">
               <span className="hot-author">{post.author}</span>
-              <span className="hot-time">{formatDate(post.createdAt)}</span>
             </div>
             <div className="hot-post-content">
-              {post.content.length > 120 
-                ? `${post.content.substring(0, 120)}...` 
+              {post.content.length > 100 
+                ? `${post.content.substring(0, 100)}...` 
                 : post.content}
             </div>
             <div className="hot-post-stats">

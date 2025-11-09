@@ -9,7 +9,7 @@ interface BlogFormProps {
 const BlogForm: React.FC<BlogFormProps> = ({ onPostCreated }) => {
   const [userProfile, setUserProfile] = useState<any>(null);
   const [formData, setFormData] = useState<CreateBlogPostDTO>({
-    title: 'Bullshit Alert',
+    title: '', // Will be auto-generated from content
     content: '',
     author: '',
     email: 'anonymous@ismellbs.com',
@@ -76,7 +76,7 @@ const BlogForm: React.FC<BlogFormProps> = ({ onPostCreated }) => {
       } else {
         // For anonymous users, reset everything
         setFormData({
-          title: 'Bullshit Alert',
+          title: '',
           content: '',
           author: '',
           email: 'anonymous@ismellbs.com',

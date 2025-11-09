@@ -41,11 +41,21 @@ router.get('/posts/search', async (req: Request, res: Response) => {
   }
 });
 
-// GET /api/posts/:id - Get single post by ID
-router.get('/posts/:id', async (req: Request, res: Response) => {
+// GET /api/posts/:idOrSlug - Get single post by ID or slug
+router.get('/posts/:idOrSlug', async (req: Request, res: Response) => {
   try {
-    const { id } = req.params;
-    const post = await blogService.getPostById(id);
+    const { idOrSlug } = req.params;
+    
+    // Try to find by slug first (contains hyphens or lowercase letters)
+    let post = null;
+    if (idOrSlug.includes('-') || /^[a-z]/.test(idOrSlug)) {
+      post = await blogService.getPostBySlug(idOrSlug);
+    }
+    
+    // If not found by slug, try by ID
+    if (!post) {
+      post = await blogService.getPostById(idOrSlug);
+    }
 
     if (!post) {
       res.status(404).json({ success: false, error: 'Post not found' });
@@ -79,6 +89,7 @@ router.post(
 
       const blogPost: BlogPost = {
         title: req.body.title,
+        slug: '', // Will be auto-generated in service
         content: req.body.content,
         author: req.body.author,
         email: req.body.email,

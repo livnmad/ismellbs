@@ -156,17 +156,6 @@ const BlogList: React.FC<BlogListProps> = ({ refreshTrigger }) => {
     }
   };
 
-  const formatDate = (dateString: string) => {
-    const date = new Date(dateString);
-    return date.toLocaleDateString('en-US', {
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit',
-    });
-  };
-
   if (loading) {
     return <div className="loading">Loading posts...</div>;
   }
@@ -189,9 +178,12 @@ const BlogList: React.FC<BlogListProps> = ({ refreshTrigger }) => {
               className="blog-post"
             >
               <div 
-                onClick={() => navigate(`/post/${post.id}`)}
+                onClick={() => navigate(`/post/${post.slug || post.id}`)}
                 style={{ cursor: 'pointer' }}
               >
+                {post.title && (
+                  <h3 className="blog-post-title">{post.title}</h3>
+                )}
                 <div className="blog-post-meta">
                   <span><strong>{post.author}</strong></span>
                 </div>
@@ -259,7 +251,7 @@ const BlogList: React.FC<BlogListProps> = ({ refreshTrigger }) => {
                           {comments[post.id].length > 3 && (
                             <button 
                               className="view-all-comments"
-                              onClick={() => navigate(`/post/${post.id}`)}
+                              onClick={() => navigate(`/post/${post.slug || post.id}`)}
                             >
                               View all {comments[post.id].length} comments
                             </button>
