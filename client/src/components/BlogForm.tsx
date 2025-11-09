@@ -15,7 +15,6 @@ const BlogForm: React.FC<BlogFormProps> = ({ onPostCreated }) => {
     email: 'anonymous@ismellbs.com',
     tags: [],
   });
-  const [tagInput, setTagInput] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
@@ -40,33 +39,6 @@ const BlogForm: React.FC<BlogFormProps> = ({ onPostCreated }) => {
     setFormData({
       ...formData,
       [e.target.name]: e.target.value,
-    });
-  };
-
-  const handleAddTag = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === 'Enter' && tagInput.trim()) {
-      e.preventDefault();
-      if (formData.tags && formData.tags.length >= 5) {
-        setError('Maximum 5 tags allowed');
-        return;
-      }
-      if (formData.tags?.includes(tagInput.trim())) {
-        setError('Tag already added');
-        return;
-      }
-      setFormData({
-        ...formData,
-        tags: [...(formData.tags || []), tagInput.trim()],
-      });
-      setTagInput('');
-      setError(null);
-    }
-  };
-
-  const handleRemoveTag = (tagToRemove: string) => {
-    setFormData({
-      ...formData,
-      tags: formData.tags?.filter((tag) => tag !== tagToRemove),
     });
   };
 
@@ -113,7 +85,6 @@ const BlogForm: React.FC<BlogFormProps> = ({ onPostCreated }) => {
         setIsAnonymous(false);
       }
       
-      setTagInput('');
       onPostCreated();
       
       setTimeout(() => setSuccessFading(true), 4500);

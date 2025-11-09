@@ -25,10 +25,14 @@ export interface UserProfile {
 
 export class UserService {
   private esClient: Client;
-  private readonly JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key-change-this';
+  private readonly JWT_SECRET: string;
 
   constructor(esClient: Client) {
     this.esClient = esClient;
+    this.JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key-change-this';
+    if (!process.env.JWT_SECRET) {
+      console.warn('⚠️  WARNING: Using default JWT_SECRET. Set JWT_SECRET environment variable in production!');
+    }
   }
 
   async initializeIndex(): Promise<void> {

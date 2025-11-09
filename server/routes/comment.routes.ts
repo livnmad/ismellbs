@@ -4,6 +4,7 @@ import { body, validationResult } from 'express-validator';
 import xss from 'xss';
 import rateLimiter from '../middleware/rateLimit';
 import jwt from 'jsonwebtoken';
+import { getJWTSecret } from '../config/secrets';
 
 const router = Router();
 
@@ -45,7 +46,7 @@ router.post('/', commentValidation, async (req: Request, res: Response) => {
 
     if (token) {
       try {
-        const decoded = jwt.verify(token, process.env.JWT_SECRET || 'your-secret-key') as any;
+        const decoded = jwt.verify(token, getJWTSecret()) as any;
         isAuthenticated = true;
         userId = decoded.id;
       } catch (err) {
