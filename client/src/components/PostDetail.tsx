@@ -27,7 +27,7 @@ const PostDetail: React.FC = () => {
   const fetchPost = async () => {
     try {
       setLoading(true);
-      const response = await axios.get(`https://ismellbullshit.com/api/posts/${postId}`);
+      const response = await axios.get(`/api/posts/${postId}`);
       
       if (response.data.success) {
         setPost(response.data.data);

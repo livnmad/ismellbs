@@ -34,7 +34,7 @@ const CommentSection: React.FC<CommentSectionProps> = ({ postId }) => {
   const fetchComments = async () => {
     try {
       setLoading(true);
-      const response = await axios.get(`https://ismellbullshit.com/api/comments/${postId}`);
+      const response = await axios.get(`/api/comments/${postId}`);
       if (response.data.success) {
         setComments(response.data.data);
       }
@@ -51,7 +51,7 @@ const CommentSection: React.FC<CommentSectionProps> = ({ postId }) => {
 
     try {
       setSubmitting(true);
-      const response = await axios.post('https://ismellbullshit.com/api/comments', {
+      const response = await axios.post('/api/comments', {
         postId,
         content: newComment.content,
         author: newComment.author,
@@ -71,7 +71,7 @@ const CommentSection: React.FC<CommentSectionProps> = ({ postId }) => {
 
   const handleReaction = async (commentId: string, reactionType: string) => {
     try {
-      await axios.post(`https://ismellbullshit.com/api/comments/${commentId}/react`, {
+      await axios.post(`/api/comments/${commentId}/react`, {
         reactionType,
       });
       // Refresh comments to show updated reaction count

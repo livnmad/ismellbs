@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const API_URL = process.env.REACT_APP_API_URL || 'https://www.ismellbullshit.com/api';
+const API_URL = '/api';
 
 export interface BlogPost {
   id: string;
