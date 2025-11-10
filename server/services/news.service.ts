@@ -15,8 +15,15 @@ export interface NewsArticle {
  * Get your API key from: https://newsapi.org/
  */
 export class NewsService {
-  private readonly API_KEY: string = "9e527c643fe449fd9a10b420b6377217";
+  private readonly API_KEY: string;
   private readonly BASE_URL = 'https://newsapi.org/v2';
+
+  constructor() {
+    this.API_KEY = process.env.NEWS_API_KEY || 'demo';
+    if (!process.env.NEWS_API_KEY) {
+      console.warn('⚠️  WARNING: Using demo NEWS_API_KEY. Set NEWS_API_KEY environment variable for production!');
+    }
+  }
 
   async getUSPoliticsNews(limit: number = 10): Promise<NewsArticle[]> {
     try {

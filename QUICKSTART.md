@@ -19,7 +19,7 @@ ismellbs/
 ```bash
 docker-compose up -d
 ```
-Access at: https://ismellbullshit.com/api
+Access at: http://localhost:3001
 
 ### Option 2: Local Development
 

@@ -47,8 +47,8 @@ A full-stack blog submission platform built with Node.js, TypeScript, React, and
    ```
 
 3. **Access the application**
-   - Application: https://ismellbullshit.com
-   - Backend API: https://ismellbullshit.com/api
+   - Application: http://localhost:3000
+   - Backend API: http://localhost:3001
    - Elasticsearch: http://localhost:9200
 
 4. **Stop all services**

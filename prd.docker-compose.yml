@@ -1,3 +1,5 @@
+version: '3.8'
+
 services:
   elasticsearch:
     image: docker.elastic.co/elasticsearch/elasticsearch:8.11.0
@@ -18,6 +20,26 @@ services:
       interval: 30s
       timeout: 10s
       retries: 5
+
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: ismellbs-app
+    ports:
+      - "3001:3001"
+      - "3000:3001"
+    environment:
+      - PORT=3001
+      - ELASTICSEARCH_NODE=http://elasticsearch:9200
+      - CORS_ORIGIN=http://localhost:3001
+      - NODE_ENV=production
+    depends_on:
+      elasticsearch:
+        condition: service_healthy
+    networks:
+      - ismellbs-network
+    restart: unless-stopped
 
 networks:
   ismellbs-network:
