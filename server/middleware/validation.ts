@@ -16,14 +16,11 @@ const sanitizeXSS = (value: string): string => {
 // Validation rules for blog post submission
 export const blogPostValidation: ValidationChain[] = [
   body('title')
+    .optional()
     .trim()
-    .notEmpty()
-    .withMessage('Title is required')
-    .isLength({ min: 3, max: 200 })
-    .withMessage('Title must be between 3 and 200 characters')
-    .customSanitizer(sanitizeXSS)
-    .matches(/^[a-zA-Z0-9\s.,!?'-]+$/)
-    .withMessage('Title contains invalid characters'),
+    .isLength({ min: 0, max: 200 })
+    .withMessage('Title must be less than 200 characters')
+    .customSanitizer(sanitizeXSS),
 
   body('content')
     .trim()
