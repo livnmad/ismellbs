@@ -32,7 +32,7 @@ services:
     environment:
       - PORT=3001
       - ELASTICSEARCH_NODE=http://elasticsearch:9200
-      - CORS_ORIGIN=http://localhost:3001
+      - CORS_ORIGIN=https://ismellbullshit.com/api
       - NODE_ENV=production
     depends_on:
       elasticsearch:

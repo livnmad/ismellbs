@@ -90,7 +90,7 @@ const AdminDashboard: React.FC = () => {
 
     try {
       await axios.post(
-        'http://localhost:3001/api/admin/verify',
+        'https://ismellbullshit.com/api/admin/verify',
         {},
         {
           headers: { Authorization: `Bearer ${token}` },
@@ -108,7 +108,7 @@ const AdminDashboard: React.FC = () => {
 
     try {
       setLoading(true);
-      const response = await axios.get('http://localhost:3001/api/admin/posts', {
+      const response = await axios.get('https://ismellbullshit.com/api/admin/posts', {
         headers: { Authorization: `Bearer ${token}` },
       });
 
@@ -128,7 +128,7 @@ const AdminDashboard: React.FC = () => {
     if (!token) return;
 
     try {
-      const response = await axios.get('http://localhost:3001/api/admin/users', {
+      const response = await axios.get('https://ismellbullshit.com/api/admin/users', {
         headers: { Authorization: `Bearer ${token}` },
       });
 
@@ -145,7 +145,7 @@ const AdminDashboard: React.FC = () => {
     if (!token) return;
 
     try {
-      const response = await axios.get('http://localhost:3001/api/admin/app-users', {
+      const response = await axios.get('https://ismellbullshit.com/api/admin/app-users', {
         headers: { Authorization: `Bearer ${token}` },
       });
 
@@ -165,7 +165,7 @@ const AdminDashboard: React.FC = () => {
     const token = localStorage.getItem('adminToken');
     try {
       const response = await axios.post(
-        'http://localhost:3001/api/admin/users/create',
+        'https://ismellbullshit.com/api/admin/users/create',
         { username: newUsername, password: newPassword },
         { headers: { Authorization: `Bearer ${token}` } }
       );
@@ -190,7 +190,7 @@ const AdminDashboard: React.FC = () => {
 
     const token = localStorage.getItem('adminToken');
     try {
-      const response = await axios.delete(`http://localhost:3001/api/admin/users/${username}`, {
+      const response = await axios.delete(`https://ismellbullshit.com/api/admin/users/${username}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
 
@@ -217,7 +217,7 @@ const AdminDashboard: React.FC = () => {
     const token = localStorage.getItem('adminToken');
     try {
       const response = await axios.post(
-        'http://localhost:3001/api/admin/change-password',
+        'https://ismellbullshit.com/api/admin/change-password',
         { oldPassword, newPassword: newPasswordChange },
         { headers: { Authorization: `Bearer ${token}` } }
       );
@@ -239,7 +239,7 @@ const AdminDashboard: React.FC = () => {
     const token = localStorage.getItem('adminToken');
     try {
       const response = await axios.post(
-        `http://localhost:3001/api/admin/app-users/${userId}/toggle`,
+        `https://ismellbullshit.com/api/admin/app-users/${userId}/toggle`,
         { isActive },
         { headers: { Authorization: `Bearer ${token}` } }
       );
@@ -261,7 +261,7 @@ const AdminDashboard: React.FC = () => {
 
     const token = localStorage.getItem('adminToken');
     try {
-      const response = await axios.delete(`http://localhost:3001/api/admin/app-users/${userId}`, {
+      const response = await axios.delete(`https://ismellbullshit.com/api/admin/app-users/${userId}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
 
@@ -282,7 +282,7 @@ const AdminDashboard: React.FC = () => {
 
     const token = localStorage.getItem('adminToken');
     try {
-      await axios.delete(`http://localhost:3001/api/admin/posts/${postId}`, {
+      await axios.delete(`https://ismellbullshit.com/api/admin/posts/${postId}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
 

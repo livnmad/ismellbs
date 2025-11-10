@@ -47,8 +47,8 @@ A full-stack blog submission platform built with Node.js, TypeScript, React, and
    ```
 
 3. **Access the application**
-   - Application: http://localhost:3001
-   - Backend API: http://localhost:3001/api
+   - Application: https://ismellbullshit.com
+   - Backend API: https://ismellbullshit.com/api
    - Elasticsearch: http://localhost:9200
 
 4. **Stop all services**
@@ -100,7 +100,7 @@ A full-stack blog submission platform built with Node.js, TypeScript, React, and
    npm run dev
    ```
    This starts:
-   - Backend server on http://localhost:3001
+   - Backend server on https://ismellbullshit.com
    - React dev server on http://localhost:3000
 
 6. **Run server only**
@@ -364,7 +364,7 @@ ismellbs/
 ### Frontend can't reach backend
 - In development: Make sure both `npm run dev:server` and `npm run dev:client` are running
 - Verify CORS_ORIGIN is set correctly in root .env
-- Check client/.env has REACT_APP_API_URL=http://localhost:3001/api
+- Check client/.env has REACT_APP_API_URL=https://ismellbullshit.com/api
 - Check that backend is running on port 3001
 - Clear browser cache and try again
 
@@ -385,7 +385,7 @@ NODE_ENV=development
 
 ### Client .env (client/.env)
 ```
-REACT_APP_API_URL=http://localhost:3001/api
+REACT_APP_API_URL=https://ismellbullshit.com/api
 ```
 
 ## 📦 NPM Scripts
@@ -418,7 +418,7 @@ REACT_APP_API_URL=http://localhost:3001/api
    npm run build
    npm start
    ```
-   Access at http://localhost:3001 (single server serves everything)
+   Access at https://ismellbullshit.com (single server serves everything)
 
 ## 📄 License
 

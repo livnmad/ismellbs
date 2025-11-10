@@ -19,7 +19,7 @@ ismellbs/
 ```bash
 docker-compose up -d
 ```
-Access at: http://localhost:3001
+Access at: https://ismellbullshit.com/api
 
 ### Option 2: Local Development
 
@@ -41,7 +41,7 @@ Access at: http://localhost:3001
    npm run dev
    ```
    This starts both:
-   - Backend API: http://localhost:3001
+   - Backend API: https://ismellbullshit.com
    - React app: http://localhost:3000
 
 ## 📦 Available Commands
@@ -66,7 +66,7 @@ NODE_ENV=development
 
 Create `client/.env`:
 ```
-REACT_APP_API_URL=http://localhost:3001/api
+REACT_APP_API_URL=https://ismellbullshit.com/api
 ```
 
 ## 🎯 What Changed?

@@ -23,7 +23,7 @@ const NewsFeed: React.FC = () => {
   const fetchNews = async () => {
     try {
       setLoading(true);
-      const response = await axios.get('http://localhost:3001/api/news?limit=3');
+      const response = await axios.get('https://ismellbullshit.com/api/news?limit=3');
       
       if (response.data.success) {
         setNews(response.data.data);

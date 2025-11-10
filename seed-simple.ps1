@@ -1,4 +1,4 @@
-$API_URL = "http://localhost:3001/api"
+$API_URL = "https://ismellbullshit.com/api"
 
 $posts = @(
     @{ content = "Just heard a politician say they care about the working class while voting to cut minimum wage. The audacity!"; author = "Karen Smith"; email = "karen@example.com"; tags = @("politics", "hypocrisy") },

@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const API_URL = 'http://localhost:3001/api';
+const API_URL = 'https://ismellbullshit.com/api';
 
 const names = [
   'Karen Smith', 'Bob Johnson', 'Sarah Williams', 'Mike Davis', 

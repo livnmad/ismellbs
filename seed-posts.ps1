@@ -1,6 +1,6 @@
 # PowerShell script to seed blog posts
 
-$API_URL = "http://localhost:3001/api"
+$API_URL = "https://ismellbullshit.com/api"
 
 $posts = @(
     @{
