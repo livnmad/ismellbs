@@ -3,12 +3,18 @@ FROM node:20-alpine AS server-builder
 
 WORKDIR /app
 
+# Set npm timeout and registry
+ENV NPM_CONFIG_FETCH_TIMEOUT=300000
+ENV NPM_CONFIG_FETCH_RETRIES=5
+ENV NPM_CONFIG_FETCH_RETRY_MINTIMEOUT=20000
+ENV NPM_CONFIG_FETCH_RETRY_MAXTIMEOUT=120000
+
 # Copy root package files
 COPY package*.json ./
 COPY tsconfig.server.json ./
 
-# Install all dependencies
-RUN npm ci
+# Install all dependencies with progress tracking
+RUN npm ci --loglevel=info --prefer-offline --no-audit
 
 # Copy server source
 COPY server ./server
@@ -21,10 +27,18 @@ FROM node:20-alpine AS client-builder
 
 WORKDIR /app
 
+# Set npm timeout and registry
+ENV NPM_CONFIG_FETCH_TIMEOUT=300000
+ENV NPM_CONFIG_FETCH_RETRIES=5
+ENV NPM_CONFIG_FETCH_RETRY_MINTIMEOUT=20000
+ENV NPM_CONFIG_FETCH_RETRY_MAXTIMEOUT=120000
+
 # Copy client package files
 COPY client/package*.json ./client/
 WORKDIR /app/client
-RUN npm ci
+
+# Install dependencies with progress tracking
+RUN npm ci --loglevel=info --prefer-offline --no-audit
 
 # Copy client source
 COPY client ./
@@ -35,11 +49,14 @@ FROM node:20-alpine
 
 WORKDIR /app
 
+# Set npm timeout and registry
+ENV NPM_CONFIG_FETCH_TIMEOUT=300000
+
 # Copy root package files
 COPY package*.json ./
 
 # Install production dependencies only
-RUN npm ci --only=production
+RUN npm ci --only=production --loglevel=info --prefer-offline --no-audit
 
 # Copy built server from builder
 COPY --from=server-builder /app/dist ./dist

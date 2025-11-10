@@ -1,0 +1,97 @@
+# Optimized Dockerfile for EC2 with build args
+# Multi-stage build for backend
+FROM node:20-alpine AS server-builder
+
+WORKDIR /app
+
+# Install build dependencies for native modules
+RUN apk add --no-cache python3 make g++
+
+# Set npm configurations for reliability
+ENV NPM_CONFIG_FETCH_TIMEOUT=300000
+ENV NPM_CONFIG_FETCH_RETRIES=5
+ENV NPM_CONFIG_FETCH_RETRY_MINTIMEOUT=20000
+ENV NPM_CONFIG_FETCH_RETRY_MAXTIMEOUT=120000
+ENV NPM_CONFIG_LOGLEVEL=info
+
+# Copy root package files
+COPY package*.json ./
+COPY tsconfig.server.json ./
+
+# Clean install with retries and no audit
+RUN npm ci --prefer-offline --no-audit --omit=dev --loglevel=verbose || \
+    (npm cache clean --force && npm ci --prefer-offline --no-audit --omit=dev)
+
+# Copy server source
+COPY server ./server
+
+# Build TypeScript
+RUN npm run build:server
+
+# Multi-stage build for frontend
+FROM node:20-alpine AS client-builder
+
+WORKDIR /app
+
+# Install build dependencies
+RUN apk add --no-cache python3 make g++
+
+# Set npm configurations
+ENV NPM_CONFIG_FETCH_TIMEOUT=300000
+ENV NPM_CONFIG_FETCH_RETRIES=5
+ENV NPM_CONFIG_LOGLEVEL=info
+ENV GENERATE_SOURCEMAP=false
+
+# Copy client package files
+COPY client/package*.json ./client/
+WORKDIR /app/client
+
+# Install with retry logic
+RUN npm ci --prefer-offline --no-audit --loglevel=verbose || \
+    (npm cache clean --force && npm ci --prefer-offline --no-audit)
+
+# Copy client source
+COPY client ./
+
+# Build with limited memory usage
+ENV NODE_OPTIONS="--max-old-space-size=2048"
+RUN npm run build
+
+# Production stage
+FROM node:20-alpine
+
+WORKDIR /app
+
+# Set npm configurations
+ENV NPM_CONFIG_FETCH_TIMEOUT=300000
+ENV NODE_ENV=production
+
+# Copy root package files
+COPY package*.json ./
+
+# Install production dependencies only with retry
+RUN npm ci --only=production --prefer-offline --no-audit || \
+    (npm cache clean --force && npm ci --only=production --prefer-offline --no-audit)
+
+# Copy built server from builder
+COPY --from=server-builder /app/dist ./dist
+
+# Copy built client from builder
+COPY --from=client-builder /app/client/build ./client/build
+
+# Create non-root user for security
+RUN addgroup -g 1001 -S nodejs && \
+    adduser -S nodejs -u 1001 && \
+    chown -R nodejs:nodejs /app
+
+USER nodejs
+
+# Expose port
+EXPOSE 3001
+
+# Health check
+HEALTHCHECK --interval=30s --timeout=3s --start-period=40s --retries=3 \
+  CMD node -e "require('http').get('http://localhost:3001/health', (r) => {process.exit(r.statusCode === 200 ? 0 : 1)})"
+
+# Start the application
+CMD ["node", "dist/server/server.js"]
