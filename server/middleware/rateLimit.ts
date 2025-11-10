@@ -60,6 +60,22 @@ class RateLimiter {
   public reset(ip: string): void {
     this.store.delete(ip);
   }
+
+  public clearAll(): void {
+    this.store.clear();
+  }
+
+  public getStats(): { totalEntries: number; entries: Array<{ identifier: string; count: number; resetTime: string }> } {
+    const entries = Array.from(this.store.entries()).map(([identifier, entry]) => ({
+      identifier,
+      count: entry.count,
+      resetTime: new Date(entry.resetTime).toISOString(),
+    }));
+    return {
+      totalEntries: this.store.size,
+      entries,
+    };
+  }
 }
 
 // Create rate limiter instance (1 request per 5 minutes for anonymous, 5 for authenticated)

@@ -1,6 +1,7 @@
 import { Router, Request, Response } from 'express';
 import { adminService } from '../services/admin.service';
 import { authMiddleware, AuthRequest } from '../middleware/auth';
+import rateLimiter from '../middleware/rateLimit';
 
 const router = Router();
 
@@ -240,6 +241,40 @@ router.delete('/app-users/:userId', authMiddleware, async (req: AuthRequest, res
   } catch (error) {
     console.error('Error deleting user:', error);
     res.status(500).json({ success: false, error: 'Failed to delete user' });
+  }
+});
+
+/**
+ * POST /api/admin/rate-limit/clear
+ * Clear all rate limiting tracking (protected)
+ */
+router.post('/rate-limit/clear', authMiddleware, async (req: AuthRequest, res: Response) => {
+  try {
+    rateLimiter.clearAll();
+    res.json({ 
+      success: true, 
+      message: 'All rate limiting tracking cleared successfully' 
+    });
+  } catch (error) {
+    console.error('Error clearing rate limits:', error);
+    res.status(500).json({ success: false, error: 'Failed to clear rate limits' });
+  }
+});
+
+/**
+ * GET /api/admin/rate-limit/stats
+ * Get current rate limiting stats (protected)
+ */
+router.get('/rate-limit/stats', authMiddleware, async (req: AuthRequest, res: Response) => {
+  try {
+    const stats = rateLimiter.getStats();
+    res.json({ 
+      success: true, 
+      data: stats 
+    });
+  } catch (error) {
+    console.error('Error fetching rate limit stats:', error);
+    res.status(500).json({ success: false, error: 'Failed to fetch rate limit stats' });
   }
 });
 
