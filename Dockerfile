@@ -1,5 +1,5 @@
 # Multi-stage build for backend
-FROM node:18-alpine AS server-builder
+FROM node:20-alpine AS server-builder
 
 WORKDIR /app
 
@@ -17,7 +17,7 @@ COPY server ./server
 RUN npm run build:server
 
 # Multi-stage build for frontend
-FROM node:18-alpine AS client-builder
+FROM node:20-alpine AS client-builder
 
 WORKDIR /app
 
@@ -31,7 +31,7 @@ COPY client ./
 RUN npm run build
 
 # Production stage
-FROM node:18-alpine
+FROM node:20-alpine
 
 WORKDIR /app
 

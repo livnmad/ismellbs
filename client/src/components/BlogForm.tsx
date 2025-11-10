@@ -116,8 +116,6 @@ const BlogForm: React.FC<BlogFormProps> = ({ onPostCreated }) => {
 
   return (
     <div className="card">
-      <h2 className="card-title">Post some bullshit</h2>
-      
       {error && <div className={`error-message ${errorFading ? 'fade-out' : ''}`}>{error}</div>}
       {success && <div className={`success-message ${successFading ? 'fade-out' : ''}`}>{success}</div>}
 
@@ -171,7 +169,7 @@ const BlogForm: React.FC<BlogFormProps> = ({ onPostCreated }) => {
         </div>
 
         <button type="submit" className="submit-btn" disabled={loading}>
-          {loading ? 'Submitting...' : 'Submit'}
+          {loading ? 'Submitting...' : 'Share Bullshit'}
         </button>
       </form>
     </div>
