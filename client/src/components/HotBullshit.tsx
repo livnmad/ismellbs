@@ -18,7 +18,7 @@ const HotBullshit: React.FC = () => {
       const response = await blogApi.getPosts(1, 20);
       
       // Get top 2 posts with most comments
-      if (response.data.length > 0) {
+      if (response?.data && Array.isArray(response.data) && response.data.length > 0) {
         const sorted = [...response.data].sort((a, b) => 
           (b.commentCount || 0) - (a.commentCount || 0)
         );
