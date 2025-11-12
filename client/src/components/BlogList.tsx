@@ -38,16 +38,17 @@ const BlogList: React.FC<BlogListProps> = ({ refreshTrigger }) => {
     setError(null);
     try {
       const response: PaginatedResponse = await blogApi.getPosts(page, 10);
-      setPosts(response.data);
+      setPosts(response?.data || []);
       setPagination({
-        page: response.page,
-        pageSize: response.pageSize,
-        total: response.total,
-        totalPages: response.totalPages,
+        page: response?.page || 1,
+        pageSize: response?.pageSize || 10,
+        total: response?.total || 0,
+        totalPages: response?.totalPages || 0,
       });
     } catch (err) {
       setError('Failed to load posts');
       console.error('Error fetching posts:', err);
+      setPosts([]);
     } finally {
       setLoading(false);
     }
@@ -166,7 +167,7 @@ const BlogList: React.FC<BlogListProps> = ({ refreshTrigger }) => {
 
   return (
     <div className="blog-posts">
-      {posts.length === 0 ? (
+      {!posts || posts.length === 0 ? (
         <div className="no-posts">
           No posts yet. Be the first to submit!
         </div>
