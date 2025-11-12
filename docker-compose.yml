@@ -21,28 +21,6 @@ services:
       timeout: 10s
       retries: 5
 
-#  backend:
-#    build:
-#      context: .
-#      dockerfile: Dockerfile
-#    container_name: ismellbs-app
-#    ports:
-#      - "3001:3001"
-#      - "3000:3000"
-#    environment:
-#      - PORT=3001
-#      - ELASTICSEARCH_NODE=http://elasticsearch:9200
-#      - CORS_ORIGIN=https://www.ismellbullshit.com,https://ismellbullshit.com,http://localhost:3000
-#      - NODE_ENV=production
-#      - NEWS_API_KEY=9e527c643fe449fd9a10b420b6377217
-#      - JWT_SECRET=24e6c41bc2371583f2b363473f810adbd9a971d3444c7fddab286b22d7900ba8e6fdaf26316053b2ea4dff6389c4ba3a8f00640ad3afb7ea6f5aba42b2142192
-#    depends_on:
-#      elasticsearch:
-#        condition: service_healthy
-#    networks:
-#      - ismellbs-network
-#    restart: unless-stopped
-
 networks:
   ismellbs-network:
     driver: bridge

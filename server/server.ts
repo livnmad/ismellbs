@@ -75,7 +75,9 @@ app.use('/api/users', userRoutes);
 
 // Serve static files from React build in production
 if (process.env.NODE_ENV === 'production') {
-  const clientBuildPath = path.join(__dirname, '..', 'client', 'build');
+  // In Docker: __dirname = /app/dist/server, client build is at /app/client/build
+  const clientBuildPath = path.join(__dirname, '..', '..', 'client', 'build');
+  console.log(`📁 Serving static files from: ${clientBuildPath}`);
   app.use(express.static(clientBuildPath));
   
   app.get('*', (_req: Request, res: Response) => {
