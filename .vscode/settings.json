@@ -1,0 +1,4 @@
+{
+  // Suppress source map warnings for node_modules
+  "debug.javascript.unmapMissingSources": true
+}
