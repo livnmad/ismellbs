@@ -29,16 +29,17 @@ A full-stack blog submission platform built with Node.js, TypeScript, React, and
 ## 🚀 Quick Start
 
 ### Prerequisites
-- Node.js 18+ installed (for local development)
+- Node.js 20+ installed (for local development)
 - Docker Desktop installed (for containerized deployment)
 - Docker Compose installed
-- Ports 3000, 3001, and 9200 available
+- Port 3001 and 9200 available
 
 ### Running with Docker Compose (Recommended)
 
 1. **Clone the repository**
    ```bash
-   cd c:\Repos\ismellbs
+   git clone https://github.com/livnmad/ismellbs.git
+   cd ismellbs
    ```
 
 2. **Start all services**
@@ -47,7 +48,8 @@ A full-stack blog submission platform built with Node.js, TypeScript, React, and
    ```
 
 3. **Access the application**
-   - Application: http://localhost:3000
+   - Application: http://localhost:3001
+   - Elasticsearch: http://localhost:9200
    - Backend API: http://localhost:3001
    - Elasticsearch: http://localhost:9200
 
