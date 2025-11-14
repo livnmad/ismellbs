@@ -2,6 +2,7 @@ import { Router, Request, Response } from 'express';
 import { adminService } from '../services/admin.service';
 import { authMiddleware, AuthRequest } from '../middleware/auth';
 import rateLimiter from '../middleware/rateLimit';
+import { FEATURE_FLAGS } from '../config/secrets';
 
 const router = Router();
 
@@ -275,6 +276,73 @@ router.get('/rate-limit/stats', authMiddleware, async (req: AuthRequest, res: Re
   } catch (error) {
     console.error('Error fetching rate limit stats:', error);
     res.status(500).json({ success: false, error: 'Failed to fetch rate limit stats' });
+  }
+});
+
+/**
+ * POST /api/admin/app-users/create
+ * Create a new app user and send welcome email (protected)
+ */
+router.post('/app-users/create', authMiddleware, async (req: AuthRequest, res: Response) => {
+  if (!FEATURE_FLAGS.PASSWORD_RESET_ENABLED) {
+    res.status(503).json({ 
+      success: false, 
+      error: 'Password reset feature is currently disabled' 
+    });
+    return;
+  }
+
+  try {
+    const { email, displayName, tempPassword } = req.body;
+
+    if (!email || !displayName || !tempPassword) {
+      res.status(400).json({ 
+        success: false, 
+        error: 'Email, display name, and temporary password required' 
+      });
+      return;
+    }
+
+    const result = await getUserService().createUser(email, displayName, tempPassword);
+
+    if (!result.success) {
+      res.status(400).json(result);
+      return;
+    }
+
+    res.json(result);
+  } catch (error) {
+    console.error('Error creating app user:', error);
+    res.status(500).json({ success: false, error: 'Failed to create user' });
+  }
+});
+
+/**
+ * POST /api/admin/app-users/:userId/reset-password
+ * Send password reset email to user (protected)
+ */
+router.post('/app-users/:userId/reset-password', authMiddleware, async (req: AuthRequest, res: Response) => {
+  if (!FEATURE_FLAGS.PASSWORD_RESET_ENABLED) {
+    res.status(503).json({ 
+      success: false, 
+      error: 'Password reset feature is currently disabled' 
+    });
+    return;
+  }
+
+  try {
+    const { userId } = req.params;
+    const result = await getUserService().adminResetPassword(userId);
+
+    if (!result.success) {
+      res.status(400).json(result);
+      return;
+    }
+
+    res.json(result);
+  } catch (error) {
+    console.error('Error sending password reset:', error);
+    res.status(500).json({ success: false, error: 'Failed to send password reset' });
   }
 });
 

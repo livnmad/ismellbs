@@ -23,7 +23,7 @@ const NewsFeed: React.FC = () => {
   const fetchNews = async () => {
     try {
       setLoading(true);
-      const response = await axios.get('/api/news?limit=3');
+      const response = await axios.get('/api/news?limit=6');
       
       if (response.data.success) {
         setNews(response.data.data);
@@ -57,7 +57,7 @@ const NewsFeed: React.FC = () => {
   if (loading) {
     return (
       <div className="news-feed">
-        <h2 className="news-title">Bullshit News</h2>
+        <h2 className="news-title">News</h2>
         <div className="news-loading">Loading news...</div>
       </div>
     );
@@ -66,7 +66,7 @@ const NewsFeed: React.FC = () => {
   if (error) {
     return (
       <div className="news-feed">
-        <h2 className="news-title">Bullshit News</h2>
+        <h2 className="news-title">News</h2>
         <div className="news-error">{error}</div>
       </div>
     );
@@ -74,28 +74,29 @@ const NewsFeed: React.FC = () => {
 
   return (
     <div className="news-feed">
-      <h2 className="news-title">Bullshit News</h2>
-      <div className="news-list">
+      <h2 className="news-title">Today's News</h2>
+      <div className="news-grid">
         {news.map((article, index) => (
           <a
             key={index}
             href={article.url}
             target="_blank"
             rel="noopener noreferrer"
-            className={`news-item ${index % 2 === 0 ? 'image-left' : 'image-right'}`}
+            className="news-card"
           >
             {article.urlToImage && (
-              <div className="news-thumbnail">
+              <div className="news-card-image">
                 <img src={article.urlToImage} alt={article.title} />
               </div>
             )}
-            <div className="news-content">
-              <div className="news-header">
-                <span className="news-source">{article.source} • {formatDate(article.publishedAt)}</span>
+            <div className="news-card-content">
+              <div className="news-card-header">
+                <span className="news-source">{article.source}</span>
+                <span className="news-time">{formatDate(article.publishedAt)}</span>
               </div>
-              <h3 className="news-item-title">{article.title}</h3>
+              <h3 className="news-card-title">{article.title}</h3>
               {article.description && (
-                <p className="news-description">{article.description}</p>
+                <p className="news-card-description">{article.description}</p>
               )}
             </div>
           </a>

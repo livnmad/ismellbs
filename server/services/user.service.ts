@@ -1,6 +1,8 @@
 import { Client } from '@elastic/elasticsearch';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
+import crypto from 'crypto';
+import emailService from './email.service';
 
 const USERS_INDEX = 'ismellbs-users';
 
@@ -12,6 +14,8 @@ export interface User {
   createdAt: string;
   lastLogin?: string;
   isActive: boolean;
+  resetToken?: string;
+  resetTokenExpiry?: number;
 }
 
 export interface UserProfile {
@@ -52,6 +56,8 @@ export class UserService {
               createdAt: { type: 'date' },
               lastLogin: { type: 'date' },
               isActive: { type: 'boolean' },
+              resetToken: { type: 'keyword' },
+              resetTokenExpiry: { type: 'long' },
             },
           },
         },
@@ -275,6 +281,229 @@ export class UserService {
       const decoded = jwt.verify(token, this.JWT_SECRET) as { userId: string; email: string; role: string };
       return { valid: true, userId: decoded.userId, email: decoded.email };
     } catch (error) {
+      return { valid: false };
+    }
+  }
+
+  /**
+   * Create a new user (admin only) and send welcome email with temporary password
+   */
+  async createUser(email: string, displayName: string, tempPassword: string): Promise<{ success: boolean; message: string; userId?: string }> {
+    // Validate email format
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      return { success: false, message: 'Invalid email format' };
+    }
+
+    // Check if user already exists
+    const existingUser = await this.findByEmail(email);
+    if (existingUser) {
+      return { success: false, message: 'Email already registered' };
+    }
+
+    // Validate display name
+    if (!displayName || displayName.trim().length < 2) {
+      return { success: false, message: 'Display name must be at least 2 characters' };
+    }
+
+    // Hash password
+    const hashedPassword = await bcrypt.hash(tempPassword, 10);
+
+    try {
+      const result = await this.esClient.index({
+        index: USERS_INDEX,
+        document: {
+          email: email.toLowerCase(),
+          password: hashedPassword,
+          displayName: displayName.trim(),
+          createdAt: new Date().toISOString(),
+          isActive: true,
+        },
+      });
+
+      await this.esClient.indices.refresh({ index: USERS_INDEX });
+
+      // Send welcome email with temporary password
+      await emailService.sendAccountCreationEmail(email, tempPassword);
+
+      return { 
+        success: true, 
+        message: 'User created successfully. Welcome email sent.', 
+        userId: result._id 
+      };
+    } catch (error) {
+      console.error('Error creating user:', error);
+      return { success: false, message: 'Failed to create user' };
+    }
+  }
+
+  /**
+   * Generate password reset token and send email
+   */
+  async requestPasswordReset(email: string): Promise<{ success: boolean; message: string }> {
+    const user = await this.findByEmail(email.toLowerCase());
+    
+    if (!user) {
+      // Return success even if user doesn't exist (security: don't reveal if email is registered)
+      return { success: true, message: 'If the email exists, a password reset link has been sent.' };
+    }
+
+    if (!user.isActive) {
+      return { success: false, message: 'Account is disabled. Please contact support.' };
+    }
+
+    // Generate reset token
+    const { token, expires } = emailService.generateResetToken();
+
+    try {
+      // Save token to user
+      await this.esClient.update({
+        index: USERS_INDEX,
+        id: user.id,
+        doc: {
+          resetToken: token,
+          resetTokenExpiry: expires,
+        },
+      });
+
+      await this.esClient.indices.refresh({ index: USERS_INDEX });
+
+      // Send password reset email
+      await emailService.sendPasswordResetEmail(user.email, token);
+
+      return { success: true, message: 'Password reset email sent. Check your inbox.' };
+    } catch (error) {
+      console.error('Error requesting password reset:', error);
+      return { success: false, message: 'Failed to send password reset email' };
+    }
+  }
+
+  /**
+   * Admin-triggered password reset (sends email with reset link)
+   */
+  async adminResetPassword(userId: string): Promise<{ success: boolean; message: string }> {
+    const user = await this.findById(userId);
+    
+    if (!user) {
+      return { success: false, message: 'User not found' };
+    }
+
+    // Generate reset token
+    const { token, expires } = emailService.generateResetToken();
+
+    try {
+      // Save token to user
+      await this.esClient.update({
+        index: USERS_INDEX,
+        id: user.id,
+        doc: {
+          resetToken: token,
+          resetTokenExpiry: expires,
+        },
+      });
+
+      await this.esClient.indices.refresh({ index: USERS_INDEX });
+
+      // Send password reset email
+      await emailService.sendPasswordResetEmail(user.email, token);
+
+      return { success: true, message: 'Password reset email sent to user.' };
+    } catch (error) {
+      console.error('Error sending password reset:', error);
+      return { success: false, message: 'Failed to send password reset email' };
+    }
+  }
+
+  /**
+   * Verify reset token and update password
+   */
+  async resetPassword(token: string, newPassword: string): Promise<{ success: boolean; message: string }> {
+    // Validate password strength
+    if (newPassword.length < 6) {
+      return { success: false, message: 'Password must be at least 6 characters' };
+    }
+
+    try {
+      // Find user by reset token
+      const result = await this.esClient.search({
+        index: USERS_INDEX,
+        body: {
+          query: {
+            term: { resetToken: token },
+          },
+        },
+      });
+
+      if (result.hits.hits.length === 0) {
+        return { success: false, message: 'Invalid or expired reset token' };
+      }
+
+      const hit = result.hits.hits[0];
+      const user = {
+        id: hit._id as string,
+        ...(hit._source as Omit<User, 'id'>),
+      };
+
+      // Check if token has expired
+      if (!user.resetTokenExpiry || user.resetTokenExpiry < Date.now()) {
+        return { success: false, message: 'Reset token has expired. Please request a new one.' };
+      }
+
+      // Hash new password
+      const hashedPassword = await bcrypt.hash(newPassword, 10);
+
+      // Update password and clear reset token
+      await this.esClient.update({
+        index: USERS_INDEX,
+        id: user.id,
+        doc: {
+          password: hashedPassword,
+          resetToken: null,
+          resetTokenExpiry: null,
+        },
+      });
+
+      await this.esClient.indices.refresh({ index: USERS_INDEX });
+
+      return { success: true, message: 'Password reset successfully. You can now log in.' };
+    } catch (error) {
+      console.error('Error resetting password:', error);
+      return { success: false, message: 'Failed to reset password' };
+    }
+  }
+
+  /**
+   * Verify if a reset token is valid (without resetting password)
+   */
+  async verifyResetToken(token: string): Promise<{ valid: boolean; email?: string }> {
+    try {
+      const result = await this.esClient.search({
+        index: USERS_INDEX,
+        body: {
+          query: {
+            term: { resetToken: token },
+          },
+        },
+      });
+
+      if (result.hits.hits.length === 0) {
+        return { valid: false };
+      }
+
+      const hit = result.hits.hits[0];
+      const user = {
+        id: hit._id as string,
+        ...(hit._source as Omit<User, 'id'>),
+      };
+
+      // Check if token has expired
+      if (!user.resetTokenExpiry || user.resetTokenExpiry < Date.now()) {
+        return { valid: false };
+      }
+
+      return { valid: true, email: user.email };
+    } catch (error) {
+      console.error('Error verifying reset token:', error);
       return { valid: false };
     }
   }

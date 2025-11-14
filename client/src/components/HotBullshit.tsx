@@ -34,7 +34,7 @@ const HotBullshit: React.FC = () => {
   if (loading) {
     return (
       <div className="hot-bullshit">
-        <h3 className="hot-title">🔥 Hot Bullshit 🔥</h3>
+        <h3 className="hot-title">🔥 Hot 🔥</h3>
         <div className="hot-loading">Loading...</div>
       </div>
     );
@@ -46,7 +46,7 @@ const HotBullshit: React.FC = () => {
 
   return (
     <div className="hot-bullshit">
-      <h3 className="hot-title">🔥 Hot Bullshit 🔥</h3>
+      <h3 className="hot-title">🔥 Hot 🔥</h3>
       <div className="hot-posts-list">
         {hotPosts.map((post, index) => (
           <div 

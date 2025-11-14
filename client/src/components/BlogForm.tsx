@@ -169,7 +169,7 @@ const BlogForm: React.FC<BlogFormProps> = ({ onPostCreated }) => {
         </div>
 
         <button type="submit" className="submit-btn" disabled={loading}>
-          {loading ? 'Submitting...' : 'Share Bullshit'}
+          {loading ? 'Submitting...' : 'Share'}
         </button>
       </form>
     </div>

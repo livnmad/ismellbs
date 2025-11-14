@@ -258,7 +258,7 @@ const BullshitFact: React.FC = () => {
 
   return (
     <div className="bullshit-fact">
-      <div className="fact-header">💩 BULLSHIT FACT 💩</div>
+      <div className="fact-header">💩 BULLSHIT 💩</div>
       <div className={`fact-content ${isAnimating ? 'fade-out' : 'fade-in'}`}>
         {currentFact}
       </div>

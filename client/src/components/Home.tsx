@@ -16,9 +16,8 @@ const Home: React.FC = () => {
       <div className="hero-section">
         <div className="left-column">
           <BlogForm onPostCreated={handlePostCreated} />
-          <HotBullshit />
         </div>
-        <NewsFeed />
+        <HotBullshit />
       </div>
 
       <div className="main-content">
@@ -28,6 +27,8 @@ const Home: React.FC = () => {
       </div>
 
       <BlogList refreshTrigger={refreshTrigger} />
+
+      <NewsFeed />
     </>
   );
 };

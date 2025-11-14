@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import CommentSection from './CommentSection';
+import HotBullshit from './HotBullshit';
 import './PostDetail.css';
 
 interface Post {
@@ -94,7 +95,14 @@ const PostDetail: React.FC = () => {
           <p>{post.content}</p>
         </div>
 
-        <CommentSection postId={post.id} />
+        <div className="post-detail-columns">
+          <div className="comments-column">
+            <CommentSection postId={post.id} />
+          </div>
+          <div className="hot-column">
+            <HotBullshit />
+          </div>
+        </div>
       </article>
     </div>
   );

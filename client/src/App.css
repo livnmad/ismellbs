@@ -70,19 +70,18 @@
 }
 
 .hero-section {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 20px;
+  display: flex;
+  justify-content: center;
   margin-bottom: 30px;
-  align-items: start;
 }
 
 .left-column {
   display: flex;
   flex-direction: column;
   gap: 0;
-  height: 100%;
-  min-height: 600px;
+  width: 100%;
+  max-width: 800px;
+  padding-right: 30px;
 }
 
 .left-column .card {
@@ -93,6 +92,7 @@
   flex: 1;
   display: flex;
   flex-direction: column;
+  min-width: 45%;
 }
 
 .hero-illustration {
@@ -131,11 +131,6 @@
 }
 
 @media (max-width: 1200px) {
-  .hero-section {
-    grid-template-columns: 1fr;
-    gap: 30px;
-  }
-
   .header h1 {
     font-size: 3rem;
   }

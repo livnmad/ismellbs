@@ -1,4 +1,6 @@
 import { Router, Request, Response } from 'express';
+import rateLimiter from '../middleware/rateLimit';
+import { FEATURE_FLAGS } from '../config/secrets';
 
 const router = Router();
 
@@ -123,6 +125,131 @@ router.post('/verify', async (req: Request, res: Response) => {
   } catch (error) {
     console.error('Error verifying token:', error);
     res.status(500).json({ success: false, error: 'Verification failed' });
+  }
+});
+
+/**
+ * POST /api/users/forgot-password
+ * Request password reset email (rate limited)
+ */
+router.post('/forgot-password', async (req: Request, res: Response) => {
+  if (!FEATURE_FLAGS.PASSWORD_RESET_ENABLED) {
+    res.status(503).json({ 
+      success: false, 
+      error: 'Password reset feature is currently disabled' 
+    });
+    return;
+  }
+
+  const ipAddress = (req.headers['x-forwarded-for'] as string)?.split(',')[0]?.trim() || 
+                    req.socket.remoteAddress || 
+                    'unknown';
+
+  // Rate limit: 5 requests per 5 minutes (using default rate limiter)
+  const rateLimitCheck = rateLimiter.check(`forgot-password:${ipAddress}`, false);
+
+  if (!rateLimitCheck.allowed) {
+    res.status(429).json({ 
+      success: false, 
+      error: 'Too many password reset requests. Please try again later.',
+      resetTime: rateLimitCheck.resetTime,
+    });
+    return;
+  }
+
+  try {
+    const { email } = req.body;
+
+    if (!email) {
+      res.status(400).json({ success: false, error: 'Email is required' });
+      return;
+    }
+
+    const result = await getUserService().requestPasswordReset(email);
+    res.json(result);
+  } catch (error) {
+    console.error('Error requesting password reset:', error);
+    res.status(500).json({ success: false, error: 'Failed to process password reset request' });
+  }
+});
+
+/**
+ * POST /api/users/reset-password
+ * Reset password with token (rate limited)
+ */
+router.post('/reset-password', async (req: Request, res: Response) => {
+  if (!FEATURE_FLAGS.PASSWORD_RESET_ENABLED) {
+    res.status(503).json({ 
+      success: false, 
+      error: 'Password reset feature is currently disabled' 
+    });
+    return;
+  }
+
+  const ipAddress = (req.headers['x-forwarded-for'] as string)?.split(',')[0]?.trim() || 
+                    req.socket.remoteAddress || 
+                    'unknown';
+
+  // Rate limit: 5 requests per 5 minutes
+  const rateLimitCheck = rateLimiter.check(`reset-password:${ipAddress}`, false);
+
+  if (!rateLimitCheck.allowed) {
+    res.status(429).json({ 
+      success: false, 
+      error: 'Too many password reset attempts. Please try again later.',
+      resetTime: rateLimitCheck.resetTime,
+    });
+    return;
+  }
+
+  try {
+    const { token, newPassword } = req.body;
+
+    if (!token || !newPassword) {
+      res.status(400).json({ success: false, error: 'Token and new password are required' });
+      return;
+    }
+
+    const result = await getUserService().resetPassword(token, newPassword);
+
+    if (!result.success) {
+      res.status(400).json(result);
+      return;
+    }
+
+    res.json(result);
+  } catch (error) {
+    console.error('Error resetting password:', error);
+    res.status(500).json({ success: false, error: 'Failed to reset password' });
+  }
+});
+
+/**
+ * GET /api/users/verify-reset-token
+ * Verify if a reset token is valid
+ */
+router.get('/verify-reset-token', async (req: Request, res: Response) => {
+  if (!FEATURE_FLAGS.PASSWORD_RESET_ENABLED) {
+    res.status(503).json({ 
+      success: false, 
+      error: 'Password reset feature is currently disabled' 
+    });
+    return;
+  }
+
+  try {
+    const { token } = req.query;
+
+    if (!token || typeof token !== 'string') {
+      res.status(400).json({ success: false, error: 'Token is required' });
+      return;
+    }
+
+    const result = await getUserService().verifyResetToken(token);
+    res.json({ success: result.valid, email: result.email });
+  } catch (error) {
+    console.error('Error verifying reset token:', error);
+    res.status(500).json({ success: false, error: 'Failed to verify token' });
   }
 });
 

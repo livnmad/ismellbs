@@ -7,6 +7,7 @@ import BullshitFact from './components/BullshitFact';
 import AdminLogin from './components/AdminLogin';
 import AdminDashboard from './components/AdminDashboard';
 import UserLogin from './components/UserLogin';
+import PasswordReset from './components/PasswordReset';
 
 function App() {
   const [userProfile, setUserProfile] = useState<any>(null);
@@ -52,6 +53,7 @@ function App() {
         <Route path="/" element={<Home />} />
         <Route path="/post/:postId" element={<PostDetail />} />
         <Route path="/login" element={<UserLogin />} />
+        <Route path="/password_reset" element={<PasswordReset />} />
         <Route path="/admin" element={<AdminLogin />} />
         <Route path="/admin/dashboard" element={<AdminDashboard />} />
       </Routes>
