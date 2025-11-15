@@ -65,7 +65,7 @@ COPY --from=server-builder /app/dist ./dist
 COPY --from=client-builder /app/client/build ./client/build
 
 # Expose port
-EXPOSE 3001
+EXPOSE 3000
 
 # Start the application
 CMD ["npm", "start"]

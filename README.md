@@ -32,7 +32,7 @@ A full-stack blog submission platform built with Node.js, TypeScript, React, and
 - Node.js 20+ installed (for local development)
 - Docker Desktop installed (for containerized deployment)
 - Docker Compose installed
-- Port 3001 and 9200 available
+- Port 3000 and 9200 available
 
 ### Running with Docker Compose (Recommended)
 
@@ -48,9 +48,9 @@ A full-stack blog submission platform built with Node.js, TypeScript, React, and
    ```
 
 3. **Access the application**
-   - Application: http://localhost:3001
+   - Application: http://localhost:3000
    - Elasticsearch: http://localhost:9200
-   - Backend API: http://localhost:3001
+   - Backend API: http://localhost:3000
    - Elasticsearch: http://localhost:9200
 
 4. **Stop all services**
@@ -84,7 +84,7 @@ A full-stack blog submission platform built with Node.js, TypeScript, React, and
    ```
    Edit `.env` if needed:
    ```
-   PORT=3001
+   PORT=3000
    ELASTICSEARCH_NODE=http://localhost:9200
    CORS_ORIGIN=http://localhost:3000
    NODE_ENV=development
@@ -367,7 +367,7 @@ ismellbs/
 - In development: Make sure both `npm run dev:server` and `npm run dev:client` are running
 - Verify CORS_ORIGIN is set correctly in root .env
 - Check client/.env has REACT_APP_API_URL=https://ismellbullshit.com/api
-- Check that backend is running on port 3001
+- Check that backend is running on port 3000
 - Clear browser cache and try again
 
 ### TypeScript errors
@@ -379,7 +379,7 @@ ismellbs/
 
 ### Root .env
 ```
-PORT=3001
+PORT=3000
 ELASTICSEARCH_NODE=http://localhost:9200
 CORS_ORIGIN=http://localhost:3000
 NODE_ENV=development

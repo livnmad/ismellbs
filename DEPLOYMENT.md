@@ -2,14 +2,14 @@
 
 ## Port Configuration Summary
 
-- **Server Port**: 3001 (serves both API and static React build)
+- **Server Port**: 3000 (serves both API and static React build)
 - **Elasticsearch**: 9200, 9300
-- **Nginx/Load Balancer**: Should proxy to port 3001
+- **Nginx/Load Balancer**: Should proxy to port 3000
 
 ## Architecture
 
 ```
-Internet → Nginx (80/443) → Backend Container (3001)
+Internet → Nginx (80/443) → Backend Container (3000)
                                     ↓
                              Elasticsearch (9200)
 ```
@@ -60,7 +60,7 @@ docker-compose ps
 Allow these inbound rules:
 - **Port 80** (HTTP) - from 0.0.0.0/0
 - **Port 443** (HTTPS) - from 0.0.0.0/0
-- **Port 3001** (App) - from 0.0.0.0/0 (or from Nginx only)
+- **Port 3000** (App) - from 0.0.0.0/0 (or from Nginx only)
 - **Port 22** (SSH) - from your IP only
 
 ### 5. Setup Nginx Reverse Proxy (Optional but Recommended)
@@ -91,7 +91,7 @@ server {
     # ssl_certificate_key /path/to/key.pem;
 
     location / {
-        proxy_pass http://localhost:3001;
+        proxy_pass http://localhost:3000;
         proxy_http_version 1.1;
         proxy_set_header Upgrade $http_upgrade;
         proxy_set_header Connection 'upgrade';
@@ -119,8 +119,8 @@ sudo certbot --nginx -d ismellbullshit.com -d www.ismellbullshit.com
 ## Direct Access (Without Nginx)
 
 If you're not using Nginx, access the site directly:
-- http://your-ec2-ip:3001
-- or configure DNS to point to your EC2 IP and use port 3001
+- http://your-ec2-ip:3000
+- or configure DNS to point to your EC2 IP and use port 3000
 
 ## Troubleshooting
 
@@ -147,9 +147,9 @@ docker-compose down
 docker-compose up -d --build
 ```
 
-### Check if port 3001 is accessible
+### Check if port 3000 is accessible
 ```bash
-curl http://localhost:3001/health
+curl http://localhost:3000/health
 ```
 
 ### Common Issues
@@ -166,15 +166,15 @@ curl http://localhost:3001/health
    - Check: `docker-compose logs elasticsearch`
    - Wait for: "Cluster health status changed from [YELLOW] to [GREEN]"
 
-4. **Port already in use**: Another service using port 3001
-   - Check: `sudo lsof -i :3001`
+4. **Port already in use**: Another service using port 3000
+   - Check: `sudo lsof -i :3000`
    - Kill process or change PORT in .env
 
 ## Monitoring
 
 ### Check application health
 ```bash
-curl http://localhost:3001/health
+curl http://localhost:3000/health
 ```
 
 ### Monitor resource usage

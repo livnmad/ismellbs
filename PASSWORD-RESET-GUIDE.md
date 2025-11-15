@@ -234,7 +234,7 @@ Reset URL: https://www.ismellbullshit.com/password_reset?token=abc123...
 
 1. **Admin Creates User**
    ```bash
-   curl -X POST http://localhost:3001/api/admin/app-users/create \
+   curl -X POST http://localhost:3000/api/admin/app-users/create \
      -H "Authorization: Bearer <admin-token>" \
      -H "Content-Type: application/json" \
      -d '{"email":"test@example.com","displayName":"Test User","tempPassword":"TempPass123"}'
@@ -242,7 +242,7 @@ Reset URL: https://www.ismellbullshit.com/password_reset?token=abc123...
 
 2. **User Requests Reset**
    ```bash
-   curl -X POST http://localhost:3001/api/users/forgot-password \
+   curl -X POST http://localhost:3000/api/users/forgot-password \
      -H "Content-Type: application/json" \
      -d '{"email":"test@example.com"}'
    ```

@@ -115,7 +115,7 @@ docker-compose up -d
 npm run dev
 
 # 2. Request password reset
-curl -X POST http://localhost:3001/api/users/forgot-password \
+curl -X POST http://localhost:3000/api/users/forgot-password \
   -H "Content-Type: application/json" \
   -d '{"email":"user@example.com"}'
 

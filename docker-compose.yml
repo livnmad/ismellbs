@@ -25,11 +25,11 @@ services:
       dockerfile: Dockerfile
     container_name: ismellbs-app
     ports:
-      - "3001:3001"
+      - "3000:3000"
     environment:
-      - PORT=3001
+      - PORT=3000
       - ELASTICSEARCH_NODE=http://elasticsearch:9200
-      - CORS_ORIGIN=https://www.ismellbullshit.com,https://ismellbullshit.com,http://localhost:3001
+      - CORS_ORIGIN=https://www.ismellbullshit.com,https://ismellbullshit.com,http://localhost:3000
       - NODE_ENV=production
       - NEWS_API_KEY=${NEWS_API_KEY}
       - JWT_SECRET=${JWT_SECRET}

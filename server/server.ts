@@ -17,7 +17,7 @@ import { UserService } from './services/user.service';
 dotenv.config();
 
 const app: Application = express();
-const PORT = process.env.PORT || 3001;
+const PORT = process.env.PORT || 3000;
 
 // Middleware
 app.use(helmet({

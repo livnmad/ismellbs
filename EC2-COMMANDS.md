@@ -71,10 +71,10 @@ docker-compose logs backend
 docker-compose logs elasticsearch
 
 # Test health endpoint
-curl http://localhost:3001/health
+curl http://localhost:3000/health
 
-# Check if port 3001 is listening
-sudo netstat -tlnp | grep 3001
+# Check if port 3000 is listening
+sudo netstat -tlnp | grep 3000
 ```
 
 ## Troubleshooting
@@ -105,14 +105,14 @@ docker-compose exec backend sh
 ## Access Your Site
 
 After deployment:
-- Direct: `http://YOUR_EC2_IP:3001`
+- Direct: `http://YOUR_EC2_IP:3000`
 - With domain: `http://ismellbullshit.com` (after DNS setup)
 
 ## Port Forwarding (if needed)
 
 If you want to access on port 80:
 ```bash
-sudo iptables -t nat -A PREROUTING -p tcp --dport 80 -j REDIRECT --to-port 3001
+sudo iptables -t nat -A PREROUTING -p tcp --dport 80 -j REDIRECT --to-port 3000
 ```
 
 ## Monitoring

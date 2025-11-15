@@ -19,7 +19,7 @@ ismellbs/
 ```bash
 docker-compose up -d
 ```
-Access at: http://localhost:3001
+Access at: http://localhost:3000
 
 ### Option 2: Local Development
 
@@ -58,7 +58,7 @@ Access at: http://localhost:3001
 
 Create `.env` in root:
 ```
-PORT=3001
+PORT=3000
 ELASTICSEARCH_NODE=http://localhost:9200
 CORS_ORIGIN=http://localhost:3000
 NODE_ENV=development

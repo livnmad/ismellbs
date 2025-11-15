@@ -31,7 +31,7 @@ export class NewsService {
       // Request more than needed to ensure we get enough valid articles
       const response = await axios.get(`${this.BASE_URL}/everything`, {
         params: {
-          q: 'white house OR congress OR senate OR biden OR trump OR politics',
+          q: 'entitlement or drama or conspiracy or scandal or idiot or unhinged or hollywood drama or weird',
           language: 'en',
           sortBy: 'publishedAt',
           pageSize: Math.max(limit * 2, 20), // Request 2x to ensure we have enough
